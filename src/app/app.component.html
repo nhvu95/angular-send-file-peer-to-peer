@@ -1,0 +1,58 @@
+<tui-root>
+  <div class="e1_2">
+    <div class="e3_20">
+      <div class="e1_57 z-10">
+        <span class="e1_59 cursor-pointer" [routerLink]="'receiver'"
+          >RECEIVE</span
+        >
+        <span class="e1_56 cursor-pointer" [routerLink]="'./'">SEND</span>
+        <div class="e2_32 cursor-pointer"></div>
+      </div>
+      <router-outlet></router-outlet>
+    </div>
+    <span class="e103_61">copyright: www.nhvu95.com</span>
+    <div class="e103_63">
+      <div class="e103_62"></div>
+      <ul class="e103_59">
+        <li>1. NO STORE YOUR FILE ON SERVER</li>
+        <li>2. SEND DIRECTLY TO YOUR FRIENDS</li>
+        <li>3. SECURED YOUR FILE</li>
+        <li>4. FREE</li>
+      </ul>
+    </div>
+    <div *ngIf="readyToSend$ | async; else copyDisabled" class="e105_52">
+      <button
+        tuiIconButton
+        appearance="flat"
+        icon="tuiIconCopyLarge"
+        class="e105_47"
+        (click)="copyData()"
+      ></button>
+      <button
+        tuiIconButton
+        appearance="flat"
+        icon="tuiIconLinkLarge"
+        class="e105_60"
+        (click)="copyLink()"
+      ></button>
+    </div>
+    <ng-template #copyDisabled>
+      <div *ngIf="isSender$ | async" class="e105_52 opacity-50">
+        <button
+          disabled
+          tuiIconButton
+          appearance="flat"
+          icon="tuiIconCopyLarge"
+          class="e105_47"
+        ></button>
+        <button
+          disabled
+          tuiIconButton
+          appearance="flat"
+          icon="tuiIconLinkLarge"
+          class="e105_60"
+        ></button>
+      </div>
+    </ng-template>
+  </div>
+</tui-root>

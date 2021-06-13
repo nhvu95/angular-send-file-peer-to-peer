@@ -1,0 +1,40 @@
+/* You can add global styles to this file, and also import other style files */
+@import '~@taiga-ui/core/styles/taiga-ui-local';
+
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+@import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
+
+$roboto-font: "Roboto";
+
+body {
+  // background-color: #afc2d9;
+  background-image: url("./assets/images/113.png");
+  background-size: cover;
+  margin: 0px;
+}
+
+* {
+  font-family: $roboto-font !important;
+}
+button:focus-visible,
+button:focus {
+  outline: none;
+}
+:root {
+  --tui-primary: rgba(
+    127.00000002980232,
+    126.00000008940697,
+    217.0000022649765,
+    1
+  ) !important;
+  --tui-primary-hover: rgba(128, 126, 217, 0.808) !important;
+  --tui-text-font: var(roboto-font);
+}
+
+.ellipsis {
+  @apply overflow-ellipsis;
+  @apply overflow-hidden;
+  @apply whitespace-nowrap;
+}

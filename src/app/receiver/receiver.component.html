@@ -1,0 +1,136 @@
+<!--component html goes here -->
+<!--component html goes here -->
+<div class="e1_3"></div>
+<div class="e2_21">
+  <div class="relative cursor-pointer">
+    <div class="e1_8 pointer-events-none"></div>
+    <div class="e2_22 pointer-events-none"></div>
+    <span class="e2_23 pointer-events-none">If you like my project</span>
+    <div class="e2_25">
+      <button
+        tuiButton
+        type="button"
+        class="ei2_25_1_15"
+        (click)="showDonate(template)"
+      >
+        Donate
+      </button>
+    </div>
+    <span class="e2_28"> you can </span>
+    <span class="e1_7 pointer-events-none">YOUR FILE ARE SECURED</span>
+  </div>
+</div>
+<ng-container *ngIf="files$ | async as files">
+  <div *ngIf="!files || files.length === 0" div class="e1_20">
+    <div class="e1_10"></div>
+    <div class="e1_21"></div>
+    <div class="e1_24">
+      <span class="e1_22 ellipsis">PLEASE ENTER ID AND KEY...</span>
+      <div class="e1_23"></div>
+    </div>
+    <button
+      tuiIconButton
+      type="button"
+      class="e104_1"
+      icon="tuiIconCloseLarge"
+    ></button>
+  </div>
+  <div *ngIf="files && files[0]" div class="e1_20">
+    <div class="e1_10"></div>
+    <div class="e1_21"></div>
+    <div class="e1_24">
+      <span class="e1_22 ellipsis">{{ files[0].fileName }}</span>
+      <div class="e1_23"></div>
+    </div>
+    <button
+      tuiIconButton
+      type="button"
+      class="e104_1"
+      icon="tuiIconCloseLarge"
+      (click)="onClose($event)"
+    ></button>
+  </div>
+  <div *ngIf="files && files[1]" class="e1_33">
+    <div class="ei1_33_1_10"></div>
+    <div class="ei1_33_1_21"></div>
+    <div class="ei1_33_1_24">
+      <span class="ei1_33_1_22 ellipsis">{{ files[1].fileName }}</span>
+      <div class="ei1_33_1_23"></div>
+    </div>
+    <button
+      tuiIconButton
+      type="button"
+      class="ei1_33_104_1"
+      icon="tuiIconCloseLarge"
+      (click)="onClose($event)"
+    ></button>
+  </div>
+  <div *ngIf="files && files[2]" class="e1_42">
+    <div class="ei1_42_1_10"></div>
+    <div class="ei1_42_1_21"></div>
+    <div class="ei1_42_1_24">
+      <span class="ei1_42_1_22 ellipsis">{{ files[2].fileName }}</span>
+      <div class="ei1_42_1_23"></div>
+    </div>
+    <button
+      tuiIconButton
+      type="button"
+      class="ei1_42_104_1"
+      icon="tuiIconCloseLarge"
+      (click)="onClose($event)"
+    ></button>
+  </div>
+</ng-container>
+<span class="e1_52 pointer-events-none">ID:</span>
+<form class="b-form" [formGroup]="leechForm">
+  <tui-input class="e1_54" tuiTextfieldSize="s" formControlName="accessKey">
+    Ask your friend about shared key
+  </tui-input>
+  <tui-input class="e103_20" tuiTextfieldSize="s" formControlName="channelId">
+    Ask your friend about shared id
+  </tui-input>
+</form>
+<span class="e1_53 pointer-events-none">KEY:</span>
+
+<tui-stepper
+  #stepper
+  [activeItemIndex]="currentStep$ | async"
+  *ngIf="steps$ | async as steps"
+>
+  <!-- Suppid html, Iknow, but i got problem when set stepper inside a div -->
+  <button
+    #step0Enable
+    class="block"
+    tuiStep
+    [state]="steps[0].state"
+    (click)="startLeech()"
+    [disabled]="steps[0].disable"
+    icon="tuiIconTimeLarge"
+  >
+    <div class="w-16">{{ steps[0].name }}</div>
+  </button>
+  <button
+    #step1Enable
+    class="block"
+    tuiStep
+    [state]="steps[1].state"
+    [disabled]="steps[1].disable"
+    icon="tuiIconTimeLarge"
+  >
+    <div class="w-16">{{ steps[1].name }}</div>
+  </button>
+  <button
+    #step2Enable
+    class="block"
+    tuiStep
+    [state]="steps[2].state"
+    [disabled]="steps[2].disable"
+    icon="tuiIconTimeLarge"
+  >
+    <div class="w-16">{{ steps[2].name }}</div>
+  </button>
+</tui-stepper>
+
+<ng-template #template polymorpheus let-observer>
+  <img src="../../assets/images/IMG_1148.JPG" class="donate">
+</ng-template>

@@ -1,0 +1,43 @@
+// component css goes here
+
+::ng-deep .ngx-file-drop__content {
+  position: absolute;
+  height: unset !important;
+}
+::ng-deep .ngx-file-drop__drop-zone {
+  border: unset !important;
+  width: 356px;
+  height: 358px !important;
+}
+
+::ng-deep tui-stepper {
+  @apply relative;
+  top: 480px;
+  height: 60px;
+  button * {
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  button:nth-child(1) {
+    @apply mr-auto;
+    @apply ml-10;
+  }
+  button:nth-child(2) {
+    @apply mx-auto;
+  }
+  button:nth-child(3) {
+    @apply ml-auto;
+    @apply mr-6;
+  }
+}
+.e2_22 {
+  background-image: url(../../assets/images/rectangle_3.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.e103_20 {
+  top: 396px;
+}
+.e1_54 {
+  top: 435px;
+}
