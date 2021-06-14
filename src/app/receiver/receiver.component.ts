@@ -2,33 +2,27 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
-  ViewChild,
-  ViewEncapsulation,
+  ViewChild
 } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { Select, Store } from '@ngxs/store';
-import { Observable, of, throwError } from 'rxjs';
-import { IFileSending } from '../app.model';
-import {
-  AccessChanelAction,
-  AppendFilesAction,
-  SetCurrentStepAction,
-  StartLeechingAction,
-} from './receiver.action';
-import { ReceiverState } from './receiver.state';
-import {
-  NgxFileDropEntry,
-  FileSystemFileEntry,
-  FileSystemDirectoryEntry,
-} from 'ngx-file-drop';
-import { v1 as uuidv1 } from 'uuid';
-import { CommonService } from '../services/common.service';
 import { TuiStepperComponent } from '@taiga-ui/kit';
-import { ReceiverSelectors } from './receiver.selectors';
-import { catchError, concatMap } from 'rxjs/operators';
-import { ActivatedRoute, Route } from '@angular/router';
+import {
+  NgxFileDropEntry
+} from 'ngx-file-drop';
 import { StateReset } from 'ngxs-reset-plugin';
-import { PolymorpheusTemplate } from '@tinkoff/ng-polymorpheus';
+import { Observable } from 'rxjs';
+import { concatMap } from 'rxjs/operators';
+import { v1 as uuidv1 } from 'uuid';
+import { IFileSending } from '../app.model';
+import { CommonService } from '../services/common.service';
+import {
+  AccessChanelAction, SetCurrentStepAction,
+  StartLeechingAction
+} from './receiver.action';
+import { ReceiverSelectors } from './receiver.selectors';
+import { ReceiverState } from './receiver.state';
 
 @Component({
   selector: 'receiver',
@@ -104,15 +98,6 @@ export class ReceiverComponent implements AfterViewInit {
       };
     });
     return filesMap;
-  }
-
-  browseFile(files: FileList) {
-    let fileSelect = this.fileMapping(files);
-    if (fileSelect.length <= 3) {
-      this.store.dispatch(new AppendFilesAction(fileSelect));
-    } else {
-      this.commonService.showDialog('Only support maximun 3 file');
-    }
   }
 
   click(item: HTMLElement) {

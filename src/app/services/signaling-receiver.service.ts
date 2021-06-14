@@ -16,7 +16,10 @@ import {
 import { SignalingService } from './signaling.service';
 import * as FileSaver from 'file-saver';
 import { Store } from '@ngxs/store';
-import { SetCurrentStepAction } from '../receiver/receiver.action';
+import {
+  AddNewFileInfoAction,
+  SetCurrentStepAction,
+} from '../receiver/receiver.action';
 
 @Injectable({
   providedIn: 'any',
@@ -52,30 +55,38 @@ export class SignalingReceiver extends SignalingService {
     );
   }
 
-  messageHandler(message: ISignalingMessage) {
+  async messageHandler(message: ISignalingMessage) {
     if (!message) return;
-    super.messageHandler(message);
+    await super.messageHandler(message);
     switch (message.content) {
       case 'offer': {
-        console.log('Get offer!');
-        this.localConnection.setRemoteDescription(message.data);
+        await this.localConnection.setRemoteDescription(message.data);
+        await this.sendAnswerToSender();
         this.crrFileInfo = message.info;
-        this.sendAnswerToSender();
+        this.store.dispatch(new AddNewFileInfoAction(this.crrFileInfo));
         break;
       }
     }
   }
 
   async sendAnswerToSender() {
-    const answer = await this.localConnection.createAnswer();
-    this.localConnection.setLocalDescription(answer);
+    const self = this;
+    try {
+      const answer = await this.localConnection.createAnswer();
+      await this.localConnection.setLocalDescription(answer);
 
-    this.rxStompService.publish({
-      destination: `/topic/${this.remoteId}`,
-      body: JSON.stringify(
-        new SignalingMessage(this.localId, this.remoteId, 'answer', answer)
-      ),
-    });
+      this.rxStompService.publish({
+        destination: `/topic/${this.remoteId}`,
+        body: JSON.stringify(
+          new SignalingMessage(this.localId, this.remoteId, 'answer', answer)
+        ),
+      });
+    } catch (e) {
+      // Stupid way, but it's worked
+      setTimeout(async () => {
+        await self.sendAnswerToSender();
+      }, 1000);
+    }
   }
 
   getNextPartInformation(chanelId: string): Observable<IGetNextPartResDTO> {

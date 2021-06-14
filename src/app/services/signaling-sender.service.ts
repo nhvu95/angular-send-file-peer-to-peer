@@ -9,7 +9,7 @@ import {
   IInitChanelReqDTO,
   IInitChanelResDTO,
   ISignalingMessage,
-  SignalingMessage
+  SignalingMessage,
 } from '../app.model';
 import { SenderModule } from '../sender/sender.module';
 import { SenderSelectors } from '../sender/sender.selectors';
@@ -19,7 +19,6 @@ import { SignalingService } from './signaling.service';
   providedIn: 'any',
 })
 export class SignalingSender extends SignalingService {
-
   constructor(
     protected readonly httpClient: HttpClient,
     protected readonly rxStompService: RxStompService,
@@ -43,22 +42,22 @@ export class SignalingSender extends SignalingService {
     });
   }
 
-  messageHandler(message: ISignalingMessage) {
+  async messageHandler(message: ISignalingMessage) {
     if (!message) return;
     switch (message.content) {
       case 'preflight': {
         console.log('Got preflight message');
         this.setRemoteId(message.from);
         this.createConnection();
-        this.sendOfferToReceiver(message.data);
+        await this.sendOfferToReceiver(message.data);
         break;
       }
       case 'answer': {
-        this.localConnection.setRemoteDescription(message.data);
+        await this.localConnection.setRemoteDescription(message.data);
         break;
       }
     }
-    super.messageHandler(message);
+    await super.messageHandler(message);
   }
 
   async sendOfferToReceiver(askingFile: { fileId; partId }) {
@@ -82,6 +81,7 @@ export class SignalingSender extends SignalingService {
           ),
         });
       } else {
+        console.log('File not exist: ');
       }
     } catch (e) {
       console.log('Failed to create session description: ', e);

@@ -1,22 +1,22 @@
-import { IFileSending } from '../app.model';
+import { IFileInformation, IFileSending } from '../app.model';
 
 export class AccessChanelAction {
-  static readonly type = 'AccessChanel';
+  static readonly type = 'Receiver AccessChanel';
   constructor(public chanelId: string, public accessKey: string) {}
 }
 
-export class AppendFilesAction {
-  static readonly type = 'add file action';
-  constructor(public files: IFileSending[]) {}
+export class AddNewFileInfoAction {
+  static readonly type = 'Receiver Add new file action';
+  constructor(public file: IFileInformation) {}
 }
 
 export class SetCurrentStepAction {
-  static readonly type = 'Set current step';
+  static readonly type = 'Receiver Set current step';
   constructor(public step: number) {}
 }
 
 export class StartLeechingAction {
-  static readonly type = 'Start leeching';
+  static readonly type = 'Receiver Start leeching';
   constructor() {}
 }
 

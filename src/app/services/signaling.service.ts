@@ -37,25 +37,23 @@ export class SignalingService {
   statsInterval = null;
   bitrateMax = 0;
 
-
   constructor(
     protected readonly httpClient: HttpClient,
     protected readonly rxStompService: RxStompService
   ) {
-    this.receivedMessages$.subscribe(message => {
-      this.messageHandler(message);
+    this.receivedMessages$.subscribe(async message => {
+      await this.messageHandler(message);
     });
   }
 
   createConnection() {}
 
-  messageHandler(message: ISignalingMessage) {
+  async messageHandler(message: ISignalingMessage) {
     if (message.content === 'iceCandidate' && message.data) {
       console.log("Got iceCandidate message");
       try {
         this.localConnection.addIceCandidate(message.data);
       } catch(e) {
-        debugger
         console.log(e);
       }
     }

@@ -66,6 +66,8 @@ export class SenderState implements NgxsOnInit {
     this.signalingService.setLocalIdAndStartListenMessage(state.localId);
 
     console.log('Action', action);
+    this.setCurrentSate(ctx, new SetCurrentStepAction(1))
+
     this.signalingService
       .initCoordinatorChanel({
         files: state.localFiles.map((file) => {
@@ -81,8 +83,7 @@ export class SenderState implements NgxsOnInit {
               draft.accessKey = res.accessKey;
             })
           );
-
-          this.setCurrentSate(ctx, new SetCurrentStepAction(1))
+          this.setCurrentSate(ctx, new SetCurrentStepAction(2))
 
           this.signalingService.dataChannel$.subscribe((res) => {
             if (res) {

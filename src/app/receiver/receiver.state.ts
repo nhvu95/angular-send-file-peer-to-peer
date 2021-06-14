@@ -9,7 +9,7 @@ import { Action, Selector, State, StateContext } from '@ngxs/store';
 import produce from 'immer';
 import { IInitChanelReqDTO, _TInstanceState } from '../app.model';
 import {
-  AppendFilesAction,
+  AddNewFileInfoAction,
   AccessChanelAction,
   SetCurrentStepAction,
   StartLeechingAction,
@@ -26,7 +26,7 @@ interface _ReceiverStateModel extends Partial<_TInstanceState> {
     disable: boolean;
     name: string;
   }[];
-  currentStep: number;
+  currentStep: Number;
 }
 
 export interface ReceiverStateModel extends Partial<_ReceiverStateModel> {}
@@ -42,8 +42,8 @@ export interface ReceiverStateModel extends Partial<_ReceiverStateModel> {}
     peerFiles: [],
     steps: [
       { state: 'normal', disable: false, name: 'Ready' },
+      { state: 'normal', disable: true, name: 'Connecting' },
       { state: 'normal', disable: true, name: 'Leeching' },
-      { state: 'normal', disable: true, name: 'Seeding' },
     ],
     currentStep: -1,
   },
@@ -113,11 +113,24 @@ export class ReceiverState {
     // Get next peer
   }
 
+  @Action(AddNewFileInfoAction)
+  addFiles(ctx: StateContext<ReceiverStateModel>, action: AddNewFileInfoAction) {
+    console.log('Action', action);
+    ctx.setState(
+      produce((draft) => {
+        if(draft.localFiles.findIndex(file => file.fileId === action.file.fileId) === -1) {
+          draft.localFiles.push({...action.file});
+        }
+      })
+    );
+  }
+
   @Action(StartLeechingAction)
   startLeeching(ctx: StateContext<ReceiverStateModel>) {
     const self = this;
     const state = ctx.getState();
     console.log('startLeeching');
+    this.setCurrentSate(ctx, new SetCurrentStepAction(1))
 
     // Get next peer
     // Step 1
@@ -133,6 +146,7 @@ export class ReceiverState {
           self.signalingService.setRemoteId(senderId);
           // Step 2
           self.signalingService.preflightToSender(res.fileId, res.partId);
+          this.setCurrentSate(ctx, new SetCurrentStepAction(2))
         }
       },
       (err: HttpErrorResponse) => {

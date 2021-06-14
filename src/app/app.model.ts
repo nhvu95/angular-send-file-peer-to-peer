@@ -6,13 +6,14 @@ export interface _TInstanceState {
   peerFiles: IFileSending[];
 }
 //
-export interface _IFileSending {
+export interface _IFileSending extends IFileInformation {
   fileId: string;
   fileName: string;
-  sendProcess: number;
-  status: number;
+  fileSize: Number;
+  totalPart: Number;
+  status: Number;
+  sendProcess: Number;
   fileData: File;
-  totalPart: number;
 }
 export interface IFileSending extends Partial<_IFileSending> {}
 //
