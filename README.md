@@ -2,7 +2,7 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 10.0.5.
 
-## Development server
+## Sample
 
 Sample here: https://hieunguyenvu.github.io/SendFilePeer2PeerClient-sample/
 
