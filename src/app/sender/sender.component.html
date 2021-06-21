@@ -37,7 +37,9 @@
     <div class="e1_21"></div>
     <div class="e1_24">
       <span class="e1_22 ellipsis">PLEASE SELECT AT LEAST 1 FILE...</span>
-      <div class="e1_23"></div>
+      <div class="e1_23">
+        <progress-bar [progress]="100" [color]="'#488aff'"> </progress-bar>
+      </div>
     </div>
     <button
       tuiIconButton
@@ -51,7 +53,13 @@
     <div class="e1_21"></div>
     <div class="e1_24">
       <span class="e1_22 ellipsis">{{ files[0].fileName }}</span>
-      <div class="e1_23"></div>
+      <div class="e1_23">
+        <progress-bar
+          [progress]="(files[0].currentSize / files[0].fileSize) * 100"
+          [color]="'#488aff'"
+        >
+        </progress-bar>
+      </div>
     </div>
     <button
       tuiIconButton
@@ -66,7 +74,13 @@
     <div class="ei1_33_1_21"></div>
     <div class="ei1_33_1_24">
       <span class="ei1_33_1_22 ellipsis">{{ files[1].fileName }}</span>
-      <div class="ei1_33_1_23"></div>
+      <div class="ei1_33_1_23">
+        <progress-bar
+          [progress]="(files[1].currentSize / files[1].fileSize) * 100"
+          [color]="'#488aff'"
+        >
+        </progress-bar>
+      </div>
     </div>
     <button
       tuiIconButton
@@ -81,7 +95,13 @@
     <div class="ei1_42_1_21"></div>
     <div class="ei1_42_1_24">
       <span class="ei1_42_1_22 ellipsis">{{ files[2].fileName }}</span>
-      <div class="ei1_42_1_23"></div>
+      <div class="ei1_42_1_23">
+        <progress-bar
+          [progress]="(files[2].currentSize / files[2].fileSize) * 100"
+          [color]="'#488aff'"
+        >
+        </progress-bar>
+      </div>
     </div>
     <button
       tuiIconButton
@@ -96,17 +116,45 @@
 ><span class="e1_54">{{ accessKey$ | async }}</span
 ><span class="e103_20">{{ channelId$ | async }}</span
 ><span class="e1_53 pointer-events-none">KEY:</span>
-<tui-stepper #stepper
+<tui-stepper
+  #stepper
   [activeItemIndex]="currentStep$ | async"
   *ngIf="steps$ | async as steps"
 >
-  <button #step0Enable class="block" tuiStep [state]="steps[0].state" (click)="initChanel()" [disabled]="steps[0].disable" icon="tuiIconTimeLarge">
-    <div class="w-16">{{steps[0].name}}</div>
+  <button
+    #step0Enable
+    class="block"
+    tuiStep
+    [state]="steps[0].state"
+    (click)="initChanel()"
+    [disabled]="steps[0].disable"
+    icon="tuiIconTimeLarge"
+  >
+    <div class="w-16">{{ steps[0].name }}</div>
   </button>
-  <button #step1Enable class="block" tuiStep [state]="steps[1].state" (click)="startSeeding()" [disabled]="steps[1].disable" icon="tuiIconTimeLarge">
-    <div class="w-16">{{steps[1].name}}</div>
+  <button
+    #step1Enable
+    class="block"
+    tuiStep
+    [state]="steps[1].state"
+    (click)="startSeeding()"
+    [disabled]="steps[1].disable"
+    icon="tuiIconTimeLarge"
+  >
+    <div class="w-16">{{ steps[1].name }}</div>
   </button>
-  <button #step2Enable class="block" tuiStep [state]="steps[2].state" [disabled]="steps[2].disable" icon="tuiIconTimeLarge">
-    <div class="w-16">{{steps[2].name}}</div>
+  <button
+    #step2Enable
+    class="block"
+    tuiStep
+    [state]="steps[2].state"
+    [disabled]="steps[2].disable"
+    icon="tuiIconTimeLarge"
+  >
+    <div class="w-16">{{ steps[2].name }}</div>
   </button>
 </tui-stepper>
+<div *ngIf="showGuide" class="lds-ripple">
+  <div></div>
+  <div></div>
+</div>

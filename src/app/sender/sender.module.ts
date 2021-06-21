@@ -14,8 +14,8 @@ import { NgxFileDropModule } from 'ngx-file-drop';
 // This Module's Components
 import { SenderComponent } from './sender.component';
 import { SenderState } from './sender.state';
-
-
+import {ProgressBarModule} from "angular-progress-bar"
+import {TuiLoaderModule} from '@taiga-ui/core';
 
 @NgModule({
   imports: [
@@ -34,6 +34,7 @@ import { SenderState } from './sender.state';
     NgxFileDropModule,
     FormsModule,
     ReactiveFormsModule,
+    ProgressBarModule
   ],
   providers: [AsyncPipe, TuiStepperComponent],
   declarations: [SenderComponent],

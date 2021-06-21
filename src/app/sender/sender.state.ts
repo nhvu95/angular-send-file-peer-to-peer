@@ -1,11 +1,15 @@
-import { Injectable, Injector } from '@angular/core';
+import { ApplicationRef, Injectable, Injector } from '@angular/core';
 import { Action, NgxsOnInit, State, StateContext } from '@ngxs/store';
 import produce from 'immer';
 import { v1 as uuidv1 } from 'uuid';
 import { _TInstanceState } from '../app.model';
 import { SetCurrentStepAction } from '../receiver/receiver.action';
 import { SignalingSender } from '../services/signaling-sender.service';
-import { AppendFilesAction, InitChanelAction } from './sender.action';
+import {
+  AppendFilesAction,
+  InitChanelAction,
+  UpdateFileSenderProgressAction
+} from './sender.action';
 
 interface _SenderStateModel extends _TInstanceState {
   accessKey: string;
@@ -66,7 +70,7 @@ export class SenderState implements NgxsOnInit {
     this.signalingService.setLocalIdAndStartListenMessage(state.localId);
 
     console.log('Action', action);
-    this.setCurrentSate(ctx, new SetCurrentStepAction(1))
+    this.setCurrentSate(ctx, new SetCurrentStepAction(1));
 
     this.signalingService
       .initCoordinatorChanel({
@@ -83,7 +87,7 @@ export class SenderState implements NgxsOnInit {
               draft.accessKey = res.accessKey;
             })
           );
-          this.setCurrentSate(ctx, new SetCurrentStepAction(2))
+          this.setCurrentSate(ctx, new SetCurrentStepAction(2));
 
           this.signalingService.dataChannel$.subscribe((res) => {
             if (res) {
@@ -136,5 +140,28 @@ export class SenderState implements NgxsOnInit {
       })
     );
     // Get next peer
+  }
+
+  @Action(UpdateFileSenderProgressAction)
+  updateFileProgress(
+    ctx: StateContext<SenderStateModel>,
+    action: UpdateFileSenderProgressAction
+  ) {
+    const state = ctx.getState();
+    ctx.setState(
+      produce((draft) => {
+        const idx = draft.localFiles.findIndex(
+          (file) => file.fileId === action.fileId
+        );
+        if (idx >= 0) {
+          const currentSize: number = draft.localFiles[idx].currentSize;
+          draft.localFiles[idx].currentSize = currentSize + action.increaseSize;
+          //prettier-ignore
+          if ( draft.localFiles[idx].currentSize > draft.localFiles[idx].fileSize ) {
+            draft.localFiles[idx].currentSize = draft.localFiles[idx].fileSize;
+          }
+        }
+      })
+    );
   }
 }

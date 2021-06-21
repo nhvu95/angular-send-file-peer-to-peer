@@ -11,6 +11,7 @@ import {
   ISignalingMessage,
   SignalingMessage,
 } from '../app.model';
+import { UpdateFileSenderProgressAction } from '../sender/sender.action';
 import { SenderModule } from '../sender/sender.module';
 import { SenderSelectors } from '../sender/sender.selectors';
 import { SignalingService } from './signaling.service';
@@ -69,7 +70,7 @@ export class SignalingSender extends SignalingService {
         const offer = await this.localConnection.createOffer();
         await this.localConnection.setLocalDescription(offer);
 
-        this.rxStompService.publish({
+        this.rxStompService.publish({ 
           destination: `/topic/${this.remoteId}`,
           body: JSON.stringify(
             new SignalingMessage(this.localId, this.remoteId, 'offer', offer, {
@@ -105,16 +106,10 @@ export class SignalingSender extends SignalingService {
     console.log(`File is ${file.fileName}`);
 
     // Handle 0 size files.
-    // statusMessage.textContent = '';
-    // downloadAnchor.textContent = '';
     if (fileData.size === 0) {
-      // bitrateDiv.innerHTML = '';
-      // statusMessage.textContent = 'File is empty, please select a non-empty file';
       this.closeDataChannels();
       return;
     }
-    // sendProgress.max = fileData.size;
-    // receiveProgress.max = fileData.size;
     const chunkSize = 16384;
     const fileReader = new FileReader();
     let offset = 0;
@@ -129,7 +124,10 @@ export class SignalingSender extends SignalingService {
       const data = <ArrayBuffer>e.target.result;
       self.dataChannel.send(data);
       offset += data.byteLength;
-      // sendProgress.value = offset;
+
+      // Update send progress
+      self.store.dispatch(new UpdateFileSenderProgressAction(fileInput.fileId, chunkSize));
+
       if (offset < fileData.size) {
         readSlice(offset);
       }

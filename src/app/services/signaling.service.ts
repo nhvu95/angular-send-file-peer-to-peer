@@ -14,7 +14,15 @@ import {
   providedIn: 'root',
 })
 export class SignalingService {
-  configuration = { 'iceServers': [{ 'urls': 'turn:18.219.253.176:3478?transport=tcp', "username": "<USERNAME>", "credential": "<PASSWORD>" }] }
+  configuration = {
+    iceServers: [
+      {
+        urls: 'turn:18.219.253.176:3478?transport=tcp',
+        username: '<USERNAME>',
+        credential: '<PASSWORD>',
+      },
+    ],
+  };
 
   localId: string;
   remoteId: string;
@@ -30,7 +38,7 @@ export class SignalingService {
 
   receiveBuffer = [];
   receivedSize = 0;
-  
+
   bytesPrev = 0;
   timestampPrev = 0;
   timestampStart;
@@ -41,7 +49,7 @@ export class SignalingService {
     protected readonly httpClient: HttpClient,
     protected readonly rxStompService: RxStompService
   ) {
-    this.receivedMessages$.subscribe(async message => {
+    this.receivedMessages$.subscribe(async (message) => {
       await this.messageHandler(message);
     });
   }
@@ -50,10 +58,10 @@ export class SignalingService {
 
   async messageHandler(message: ISignalingMessage) {
     if (message.content === 'iceCandidate' && message.data) {
-      console.log("Got iceCandidate message");
+      console.log('Got iceCandidate message');
       try {
         this.localConnection.addIceCandidate(message.data);
-      } catch(e) {
+      } catch (e) {
         console.log(e);
       }
     }
@@ -81,7 +89,7 @@ export class SignalingService {
       from: this.localId,
       to: this.remoteId,
       content: 'iceCandidate',
-      data: candidate
+      data: candidate,
     };
 
     this.rxStompService.publish({
@@ -96,11 +104,11 @@ export class SignalingService {
       this.localConnection &&
       this.localConnection.iceConnectionState === 'connected'
     ) {
-      const stats = await this.localConnection.getStats();
+      const stats: any = await this.localConnection.getStats();
       let activeCandidatePair;
       stats.forEach((report) => {
         if (report.type === 'transport') {
-          // activeCandidatePair = stats.get(report.selectedCandidatePairId);
+          activeCandidatePair = stats.get(report.selectedCandidatePairId);
         }
       });
       if (activeCandidatePair) {
@@ -113,9 +121,8 @@ export class SignalingService {
           ((bytesNow - this.bytesPrev) * 8) /
             (activeCandidatePair.timestamp - this.timestampPrev)
         );
-        // this.bitrateDiv.innerHTML = `<strong>Current Bitrate:</strong> ${bitrate} kbits/sec`;
-        console.log(`<strong>Current Bitrate:</strong> ${bitrate} kbits/sec`);
-        
+        console.log(`Current Bitrate: ${bitrate} kbits/sec`);
+
         this.timestampPrev = activeCandidatePair.timestamp;
         this.bytesPrev = bytesNow;
         if (bitrate > this.bitrateMax) {

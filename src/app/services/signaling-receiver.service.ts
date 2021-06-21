@@ -19,6 +19,7 @@ import { Store } from '@ngxs/store';
 import {
   AddNewFileInfoAction,
   SetCurrentStepAction,
+  UpdateFileReceiveProgressAction,
 } from '../receiver/receiver.action';
 
 @Injectable({
@@ -102,7 +103,7 @@ export class SignalingReceiver extends SignalingService {
     );
   }
 
-  preflightToSender(fileId: string, partId: Number = 0) {
+  preflightToSender(fileId: string, partId: number = 0) {
     let message: ISignalingMessage = {
       from: this.localId,
       to: this.remoteId,
@@ -125,13 +126,6 @@ export class SignalingReceiver extends SignalingService {
 
     this.receivedSize = 0;
     this.bitrateMax = 0;
-    // this.downloadAnchor = <any>this.document.getElementById("download");
-    // this.downloadAnchor.textContent = '';
-    // this.downloadAnchor.removeAttribute('download');
-    // if (this.downloadAnchor.href) {
-    //   URL.revokeObjectURL(this.downloadAnchor.href);
-    //   this.downloadAnchor.removeAttribute('href');
-    // }
   }
 
   onReceiveMessageCallback(event) {
@@ -142,29 +136,27 @@ export class SignalingReceiver extends SignalingService {
 
     // we are assuming that our signaling protocol told
     // about the expected file size (and name, hash, etc).
-    // const file = fileInput.files[0];
+
     const file = this.crrFileInfo;
+    // Update send progress
+    this.store.dispatch(new UpdateFileReceiveProgressAction(file.fileId, event.data.byteLength));
 
     if (this.receivedSize === file.fileSize) {
       const received = new Blob(this.receiveBuffer);
       this.receiveBuffer = [];
-
-      // this.downloadAnchor.href = URL.createObjectURL(received);
-      // this.downloadAnchor.download = file.fileName;
-      // this.downloadAnchor.textContent = `Click to download '${file.fileName}' (${file.fileSize} bytes)`;
-      // this.downloadAnchor.style.display = 'block';
       FileSaver.saveAs(received, file.fileName);
 
-      const blob = new Blob([received], { type: 'blob' });
+      // TODO: need another way to save a stream. instead of using fileSaver saveAs
+
+      // const blob = new Blob([received], { type: 'blob' });
       // const url= window.URL.createObjectURL(blob);
       // window.open(url);
-
       const bitrate = Math.round(
         (this.receivedSize * 8) / (new Date().getTime() - this.timestampStart)
       );
-      // this.bitrateDiv.innerHTML = `<strong>Average Bitrate:</strong> ${bitrate} kbits/sec (max: ${this.bitrateMax} kbits/sec)`;
+      
       console.log(
-        `<strong>Average Bitrate:</strong> ${bitrate} kbits/sec (max: ${this.bitrateMax} kbits/sec)`
+        `Average Bitrate: ${bitrate} kbits/sec (max: ${this.bitrateMax} kbits/sec)`
       );
 
       if (this.statsInterval) {

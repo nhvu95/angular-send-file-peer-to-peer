@@ -28,7 +28,7 @@ import { SenderState } from './sender.state';
 })
 export class SenderComponent implements AfterViewInit {
   public files: NgxFileDropEntry[] = [];
-
+  showGuide: boolean = false;
   @Select(SenderSelectors.channelId) channelId$: Observable<string>;
   @Select(SenderSelectors.accessKey) accessKey$: Observable<string>;
   @Select(SenderSelectors.localFiles) files$: Observable<IFileSending[]>;
@@ -44,13 +44,15 @@ export class SenderComponent implements AfterViewInit {
     );
   }
 
-  ngAfterViewInit(): void {}
+  ngAfterViewInit(): void {
+  }
 
   initChanel() {
     const files = this.store.selectSnapshot<IFileSending[]>(
       SenderSelectors.localFiles
     );
     if (files && files.length > 0) {
+      this.showGuide = false;
       return this.store.dispatch(new InitChanelAction());
     } else {
       this.stepper.activeItemIndex = -1;
@@ -68,10 +70,11 @@ export class SenderComponent implements AfterViewInit {
       return {
         fileId: 'f' + uuidv1().replace(/\-/g, '_'),
         fileName: file.name,
-        sendProcess: 0,
+        currentSize: 0,
         status: 0,
         fileData: file,
         totalPart: 1,
+        fileSize: file.size
       };
     });
     return filesMap;
@@ -86,6 +89,9 @@ export class SenderComponent implements AfterViewInit {
   //dragDropFilePart
   dropped(files: NgxFileDropEntry[]) {
     this.files = files;
+    if(files.length > 0) {
+      this.showGuide = true;
+    }
     for (const droppedFile of files) {
       // Is it a file?
       if (droppedFile.fileEntry.isFile) {

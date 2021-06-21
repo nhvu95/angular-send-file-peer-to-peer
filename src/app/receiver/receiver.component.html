@@ -26,7 +26,9 @@
     <div class="e1_21"></div>
     <div class="e1_24">
       <span class="e1_22 ellipsis">PLEASE ENTER ID AND KEY...</span>
-      <div class="e1_23"></div>
+      <div class="e1_23">
+        <progress-bar [progress]="100" [color]="'#488aff'"> </progress-bar>
+      </div>
     </div>
     <button
       tuiIconButton
@@ -40,7 +42,9 @@
     <div class="e1_21"></div>
     <div class="e1_24">
       <span class="e1_22 ellipsis">{{ files[0].fileName }}</span>
-      <div class="e1_23"></div>
+      <div class="e1_23">
+        <progress-bar  [progress]="(files[0].currentSize/files[0].fileSize)*100" [color]="'#488aff'"> </progress-bar>
+      </div>
     </div>
     <button
       tuiIconButton
@@ -55,7 +59,9 @@
     <div class="ei1_33_1_21"></div>
     <div class="ei1_33_1_24">
       <span class="ei1_33_1_22 ellipsis">{{ files[1].fileName }}</span>
-      <div class="ei1_33_1_23"></div>
+      <div class="ei1_33_1_23">
+        <progress-bar  [progress]="(files[1].currentSize/files[1].fileSize)*100" [color]="'#488aff'"> </progress-bar>
+      </div>
     </div>
     <button
       tuiIconButton
@@ -70,7 +76,9 @@
     <div class="ei1_42_1_21"></div>
     <div class="ei1_42_1_24">
       <span class="ei1_42_1_22 ellipsis">{{ files[2].fileName }}</span>
-      <div class="ei1_42_1_23"></div>
+      <div class="ei1_42_1_23">
+        <progress-bar  [progress]="(files[2].currentSize/files[2].fileSize)*100" [color]="'#488aff'"> </progress-bar>
+      </div>
     </div>
     <button
       tuiIconButton
@@ -134,3 +142,7 @@
 <ng-template #template polymorpheus let-observer>
   <img src="../../assets/images/IMG_1148.JPG" class="donate">
 </ng-template>
+<div *ngIf="showGuide" class="lds-ripple">
+  <div></div>
+  <div></div>
+</div>

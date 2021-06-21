@@ -2,15 +2,13 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
-  ViewChild
+  ViewChild,
 } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Select, Store } from '@ngxs/store';
 import { TuiStepperComponent } from '@taiga-ui/kit';
-import {
-  NgxFileDropEntry
-} from 'ngx-file-drop';
+import { NgxFileDropEntry } from 'ngx-file-drop';
 import { StateReset } from 'ngxs-reset-plugin';
 import { Observable } from 'rxjs';
 import { concatMap } from 'rxjs/operators';
@@ -18,8 +16,9 @@ import { v1 as uuidv1 } from 'uuid';
 import { IFileSending } from '../app.model';
 import { CommonService } from '../services/common.service';
 import {
-  AccessChanelAction, SetCurrentStepAction,
-  StartLeechingAction
+  AccessChanelAction,
+  SetCurrentStepAction,
+  StartLeechingAction,
 } from './receiver.action';
 import { ReceiverSelectors } from './receiver.selectors';
 import { ReceiverState } from './receiver.state';
@@ -32,6 +31,7 @@ import { ReceiverState } from './receiver.state';
 })
 export class ReceiverComponent implements AfterViewInit {
   public files: NgxFileDropEntry[] = [];
+  showGuide: boolean = false;
 
   @Select(ReceiverSelectors.chanelId) chanelId$: Observable<string>;
   @Select(ReceiverSelectors.accessKey) accessKey$: Observable<string>;
@@ -54,6 +54,20 @@ export class ReceiverComponent implements AfterViewInit {
       accessKey: new FormControl(''),
     });
 
+    this.leechForm.valueChanges.pipe().subscribe((res) => {
+      console.log(res);
+      if (res.channelId && res.channelId.includes(' ')) {
+        const val = res.channelId.split(' ');
+        this.leechForm.setValue({ channelId: val[0], accessKey: val[1] });
+      } else if (res.accessKey && res.accessKey.includes(' ')) {
+        const val = res.accessKey.split(' ');
+        this.leechForm.setValue({ channelId: val[0], accessKey: val[1] });
+      }
+      if(res.channelId && res.accessKey ) {
+        this.showGuide = true;
+      }
+    });
+
     const queryParams = this.activeRoute.snapshot.queryParams;
     if (Object.keys(queryParams).length > 0) {
       this.leechForm.patchValue(queryParams);
@@ -72,6 +86,7 @@ export class ReceiverComponent implements AfterViewInit {
       self.stepper.activeItemIndex = -1;
     } else {
       this.leechForm.disable();
+      this.showGuide = false;
       this.store.dispatch(new AccessChanelAction(channelId, accessKey));
       this.store
         .dispatch(new SetCurrentStepAction(1))

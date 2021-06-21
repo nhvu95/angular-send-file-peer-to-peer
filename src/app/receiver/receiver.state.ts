@@ -13,6 +13,7 @@ import {
   AccessChanelAction,
   SetCurrentStepAction,
   StartLeechingAction,
+  UpdateFileReceiveProgressAction,
 } from './receiver.action';
 import { v1 as uuidv1 } from 'uuid';
 import { SignalingReceiver } from '../services/signaling-receiver.service';
@@ -26,7 +27,7 @@ interface _ReceiverStateModel extends Partial<_TInstanceState> {
     disable: boolean;
     name: string;
   }[];
-  currentStep: Number;
+  currentStep: number;
 }
 
 export interface ReceiverStateModel extends Partial<_ReceiverStateModel> {}
@@ -152,6 +153,29 @@ export class ReceiverState {
       (err: HttpErrorResponse) => {
         console.log(err);
       }
+    );
+  }
+
+  @Action(UpdateFileReceiveProgressAction)
+  updateFileProgress(
+    ctx: StateContext<ReceiverStateModel>,
+    action: UpdateFileReceiveProgressAction
+  ) {
+    const state = ctx.getState();
+    ctx.setState(
+      produce((draft) => {
+        const idx = draft.localFiles.findIndex(
+          (file) => file.fileId === action.fileId
+        );
+        if (idx > 0) {
+          const currentSize: number = draft.localFiles[idx].currentSize;
+          draft.localFiles[idx].currentSize = currentSize + action.increaseSize;
+          //prettier-ignore
+          if ( draft.localFiles[idx].currentSize > draft.localFiles[idx].fileSize ) {
+            draft.localFiles[idx].currentSize = draft.localFiles[idx].fileSize;
+          }
+        }
+      })
     );
   }
 }

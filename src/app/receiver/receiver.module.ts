@@ -18,6 +18,7 @@ import { NgxFileDropModule } from 'ngx-file-drop';
 
 import { TuiTextfieldControllerModule } from '@taiga-ui/core';
 import { SignalingReceiver } from '../services/signaling-receiver.service';
+import { ProgressBarModule } from 'angular-progress-bar';
 
 @NgModule({
   imports: [
@@ -35,6 +36,7 @@ import { SignalingReceiver } from '../services/signaling-receiver.service';
     FormsModule,
     ReactiveFormsModule,
     TuiInputModule,
+    ProgressBarModule,
     TuiTextfieldControllerModule,
   ],
   providers: [AsyncPipe, TuiStepperComponent, SignalingReceiver],

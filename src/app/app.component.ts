@@ -43,8 +43,11 @@ export class AppComponent {
     const accessKey = this.store.selectSnapshot<String>(
       SenderSelectors.accessKey
     );
-    const hostName = window.location.hostname;
-    const finalContent = `${hostName}/receiver?channelId=${channelId}&accessKey=${accessKey}`;
+
+    const href = window.location.href;
+    const idx = href.lastIndexOf("/");
+    const url = href.substring(0, idx);
+    const finalContent = `${url}/receiver?channelId=${channelId}&accessKey=${accessKey}`;
     console.log('copyLink', finalContent);
     this.ngxCopy.copy(finalContent);
   }

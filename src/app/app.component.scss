@@ -185,17 +185,11 @@
   letter-spacing: 0;
 }
 .e1_23 {
-  background-color: rgba(
-    140.00000685453415,
-    184.00000423192978,
-    244.0000006556511,
-    1
-  );
   width: 409px;
   height: 5.9333343505859375px;
   position: absolute;
   left: 0px;
-  top: 35.60000228881836px;
+  top: 30px;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
   border-bottom-left-radius: 5px;
@@ -269,17 +263,11 @@
   letter-spacing: 0;
 }
 .ei1_33_1_23 {
-  background-color: rgba(
-    140.00000685453415,
-    184.00000423192978,
-    244.0000006556511,
-    1
-  );
   width: 409px;
   height: 5.866668701171875px;
   position: absolute;
   left: 0px;
-  top: 35.20000076293945px;
+  top: 30px;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
   border-bottom-left-radius: 5px;
@@ -353,17 +341,12 @@
   letter-spacing: 0;
 }
 .ei1_42_1_23 {
-  background-color: rgba(
-    140.00000685453415,
-    184.00000423192978,
-    244.0000006556511,
-    1
-  );
+
   width: 409px;
   height: 5.9333343505859375px;
   position: absolute;
   left: 0px;
-  top: 35.60000228881836px;
+  top: 30px;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
   border-bottom-left-radius: 5px;
@@ -638,4 +621,65 @@
 }
 .e1_54{
   top: 427px;
+}
+
+.progress-outer{
+  padding: 0px !important;
+  margin: 0px !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 10px !important;
+}
+.progress-inner{
+  height: 100% !important;
+  min-height: 10px !important;
+  min-width: 0px !important;
+  background-color: rgba(
+    140.00000685453415,
+    184.00000423192978,
+    244.0000006556511,
+    1
+  );
+}
+
+.lds-ripple {
+  display: inline-block;
+  position: relative !important;
+  width: 80px;
+  height: 80px;
+  top: 405px;
+  left: 36px;
+}
+.lds-ripple div {
+  position: absolute;
+  border: 4px solid rgb(
+    127.00000002980232,
+    126.00000008940697,
+    217.0000022649765
+  );
+  opacity: 1;
+  border-radius: 50%;
+  animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
+.lds-ripple div:nth-child(2) {
+  animation-delay: -0.5s;
+}
+@keyframes lds-ripple {
+  0% {
+    top: 36px;
+    left: 36px;
+    width: 0;
+    height: 0;
+    opacity: 1;
+  }
+  100% {
+    top: 0px;
+    left: 0px;
+    width: 72px;
+    height: 72px;
+    opacity: 0;
+  }
+}
+tui-stepper{
+  z-index: 1;
 }

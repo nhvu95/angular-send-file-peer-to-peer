@@ -9,10 +9,10 @@ export interface _TInstanceState {
 export interface _IFileSending extends IFileInformation {
   fileId: string;
   fileName: string;
-  fileSize: Number;
-  totalPart: Number;
-  status: Number;
-  sendProcess: Number;
+  fileSize: number;
+  totalPart: number;
+  status: number;
+  currentSize: number;
   fileData: File;
 }
 export interface IFileSending extends Partial<_IFileSending> {}
@@ -32,7 +32,7 @@ export interface IInitChanelReqDTO extends Partial<_InitChanelReqDTO> {}
 export interface _GetNextPartResDTO {
   peerId: string;
   fileId: string;
-  partId: Number;
+  partId: number;
 }
 export interface IGetNextPartResDTO extends Partial<_GetNextPartResDTO> {}
 export type isingal =
@@ -66,10 +66,10 @@ export class SignalingMessage implements _ISignalingMessage {
 export interface IFileInformation {
   fileId: string;
   fileName: string;
-  fileSize: Number;
-  totalPart: Number;
+  fileSize: number;
+  totalPart: number;
 }
 export interface IPreFlightModel {
   fileId: string;
-  partId: Number;
+  partId: number;
 }
