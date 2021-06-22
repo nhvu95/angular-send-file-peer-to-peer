@@ -1,4 +1,4 @@
-import { ApplicationRef, Injectable, Injector } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { Action, NgxsOnInit, State, StateContext } from '@ngxs/store';
 import produce from 'immer';
 import { v1 as uuidv1 } from 'uuid';

@@ -9,10 +9,9 @@ import {
   IInitChanelReqDTO,
   IInitChanelResDTO,
   ISignalingMessage,
-  SignalingMessage,
+  SignalingMessage
 } from '../app.model';
 import { UpdateFileSenderProgressAction } from '../sender/sender.action';
-import { SenderModule } from '../sender/sender.module';
 import { SenderSelectors } from '../sender/sender.selectors';
 import { SignalingService } from './signaling.service';
 

@@ -1,4 +1,4 @@
-import { IFileInformation, IFileSending } from '../app.model';
+import { IFileInformation } from '../app.model';
 
 export class AccessChanelAction {
   static readonly type = 'RA1';

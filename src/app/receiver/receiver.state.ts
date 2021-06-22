@@ -1,24 +1,19 @@
-import {
-  ApplicationRef,
-  ChangeDetectorRef,
-  Inject,
-  Injectable,
-  Injector,
-} from '@angular/core';
-import { Action, Selector, State, StateContext } from '@ngxs/store';
-import produce from 'immer';
-import { IInitChanelReqDTO, _TInstanceState } from '../app.model';
-import {
-  AddNewFileInfoAction,
-  AccessChanelAction,
-  SetCurrentStepAction,
-  StartLeechingAction,
-  UpdateFileReceiveProgressAction,
-} from './receiver.action';
-import { v1 as uuidv1 } from 'uuid';
-import { SignalingReceiver } from '../services/signaling-receiver.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import {
+  Injectable,
+  Injector
+} from '@angular/core';
+import { Action, State, StateContext } from '@ngxs/store';
+import produce from 'immer';
+import { v1 as uuidv1 } from 'uuid';
+import { _TInstanceState } from '../app.model';
 import { CommonService } from '../services/common.service';
+import { SignalingReceiver } from '../services/signaling-receiver.service';
+import {
+  AccessChanelAction, AddNewFileInfoAction, SetCurrentStepAction,
+  StartLeechingAction,
+  UpdateFileReceiveProgressAction
+} from './receiver.action';
 
 interface _ReceiverStateModel extends Partial<_TInstanceState> {
   accessKey: string;

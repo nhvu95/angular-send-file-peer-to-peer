@@ -1,26 +1,22 @@
-import { DOCUMENT } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, Inject, Injectable, ViewChild } from '@angular/core';
+import { Injectable } from '@angular/core';
+import { Store } from '@ngxs/store';
 import { RxStompService } from '@stomp/ng2-stompjs';
-import { Message } from '@stomp/stompjs';
-import { BehaviorSubject, Observable } from 'rxjs';
+import * as FileSaver from 'file-saver';
+import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import {
   IFileInformation,
-  IGetNextPartResDTO,
-  IInitChanelReqDTO,
-  IPreFlightModel,
+  IGetNextPartResDTO, IPreFlightModel,
   ISignalingMessage,
-  SignalingMessage,
+  SignalingMessage
 } from '../app.model';
-import { SignalingService } from './signaling.service';
-import * as FileSaver from 'file-saver';
-import { Store } from '@ngxs/store';
 import {
   AddNewFileInfoAction,
   SetCurrentStepAction,
-  UpdateFileReceiveProgressAction,
+  UpdateFileReceiveProgressAction
 } from '../receiver/receiver.action';
+import { SignalingService } from './signaling.service';
 
 @Injectable({
   providedIn: 'any',

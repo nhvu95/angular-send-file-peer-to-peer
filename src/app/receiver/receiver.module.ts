@@ -1,24 +1,23 @@
 // Angular Imports
 import { AsyncPipe, CommonModule } from '@angular/common';
-import { APP_INITIALIZER, ChangeDetectorRef, NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { NgxsModule } from '@ngxs/store';
+import { TuiButtonModule, TuiTextfieldControllerModule } from '@taiga-ui/core';
 import {
   TuiInputModule,
   TuiStepperComponent,
-  TuiStepperModule,
+  TuiStepperModule
 } from '@taiga-ui/kit';
-import { TuiButtonModule, TuiSvgModule } from '@taiga-ui/core';
-
+import { ProgressBarModule } from 'angular-progress-bar';
+import { NgxFileDropModule } from 'ngx-file-drop';
+import { SignalingReceiver } from '../services/signaling-receiver.service';
 // This Module's Components
 import { ReceiverComponent } from './receiver.component';
 import { ReceiverState } from './receiver.state';
-import { NgxFileDropModule } from 'ngx-file-drop';
 
-import { TuiTextfieldControllerModule } from '@taiga-ui/core';
-import { SignalingReceiver } from '../services/signaling-receiver.service';
-import { ProgressBarModule } from 'angular-progress-bar';
+
 
 @NgModule({
   imports: [

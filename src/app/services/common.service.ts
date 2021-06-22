@@ -1,5 +1,4 @@
 import { Inject, Injectable } from '@angular/core';
-import { environment } from '../../environments/environment';
 import { TuiDialogContext, TuiDialogService } from '@taiga-ui/core';
 import { PolymorpheusTemplate } from '@tinkoff/ng-polymorpheus';
 

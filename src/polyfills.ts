@@ -67,3 +67,9 @@ import 'zone.js/dist/webapis-rtc-peer-connection';
 /***************************************************************************************************
  * APPLICATION IMPORTS
  */
+
+/***************************************************************************************************
+* SCULLY IMPORTS
+*/
+// tslint:disable-next-line: align
+import 'zone.js/dist/task-tracking';

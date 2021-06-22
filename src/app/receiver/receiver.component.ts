@@ -2,7 +2,7 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
-  ViewChild,
+  ViewChild
 } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -18,7 +18,7 @@ import { CommonService } from '../services/common.service';
 import {
   AccessChanelAction,
   SetCurrentStepAction,
-  StartLeechingAction,
+  StartLeechingAction
 } from './receiver.action';
 import { ReceiverSelectors } from './receiver.selectors';
 import { ReceiverState } from './receiver.state';

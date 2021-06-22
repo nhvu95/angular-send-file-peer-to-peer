@@ -1,6 +1,5 @@
 import { Selector } from '@ngxs/store';
-import { ReceiverStateModel } from './receiver.state';
-import { ReceiverState } from './receiver.state';
+import { ReceiverState, ReceiverStateModel } from './receiver.state';
 
 export class ReceiverSelectors {
   @Selector([ReceiverState])

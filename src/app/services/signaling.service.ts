@@ -2,12 +2,9 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { RxStompService } from '@stomp/ng2-stompjs';
 import { Message } from '@stomp/stompjs';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { environment } from 'src/environments/environment';
+import { BehaviorSubject } from 'rxjs';
 import {
-  IGetNextPartResDTO,
-  IInitChanelReqDTO,
-  ISignalingMessage,
+  ISignalingMessage
 } from '../app.model';
 
 @Injectable({

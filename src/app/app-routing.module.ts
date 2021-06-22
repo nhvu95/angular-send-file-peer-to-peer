@@ -3,14 +3,14 @@ import { RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
   {
+    path: '',
+    loadChildren: () =>
+      import('./sender/sender.module').then((m) => m.SenderModule),
+  },
+  {
     path: 'receiver',
     loadChildren: () =>
       import('./receiver/receiver.module').then((m) => m.ReceiverModule),
-  },
-  {
-    path: '**',
-    loadChildren: () =>
-      import('./sender/sender.module').then((m) => m.SenderModule),
   }
 ];
 

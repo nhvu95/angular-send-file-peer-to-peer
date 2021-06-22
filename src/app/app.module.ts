@@ -1,32 +1,28 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-import { NgxsModule } from '@ngxs/store';
-import { SenderState } from './sender/sender.state';
-import { environment } from 'src/environments/environment';
 import { AsyncPipe } from '@angular/common';
-import {
-  TuiButtonModule,
-  TuiDialogModule,
-  TuiDialogService,
-  TuiRootModule,
-} from '@taiga-ui/core';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { ReceiverState } from './receiver/receiver.state';
-import { RTCRxStompConfig } from './services/rx-stomp.config';
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NgxsModule } from '@ngxs/store';
+import { ScullyLibModule } from '@scullyio/ng-lib';
 import {
   InjectableRxStompConfig,
   RxStompService,
-  rxStompServiceFactory,
+  rxStompServiceFactory
 } from '@stomp/ng2-stompjs';
-import { AppState } from './app.state';
-import { SignalingSender } from './services/signaling-sender.service';
+import {
+  TuiButtonModule,
+  TuiDialogModule, TuiRootModule
+} from '@taiga-ui/core';
 import { TuiAvatarModule } from '@taiga-ui/kit';
+import { environment } from 'src/environments/environment';
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { AppState } from './app.state';
 import { HttpConfigInterceptor } from './interceptor/http.interceptor';
 import { CommonService } from './services/common.service';
+import { RTCRxStompConfig } from './services/rx-stomp.config';
+
 
 @NgModule({
   declarations: [AppComponent],
@@ -42,6 +38,7 @@ import { CommonService } from './services/common.service';
       developmentMode: !environment.production,
     }),
     HttpClientModule,
+    ScullyLibModule,
   ],
   providers: [
     AsyncPipe,
