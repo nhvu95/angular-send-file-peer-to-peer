@@ -4,7 +4,7 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 ## Sample
 
-Sample here: https://hieunguyenvu.github.io/SendFilePeer2PeerClient-sample/
+Sample here: f2f.nhvu95.com
 
 ## Development server
 
