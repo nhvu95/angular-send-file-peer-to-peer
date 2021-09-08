@@ -1,5 +1,5 @@
 /* You can add global styles to this file, and also import other style files */
-@import '~@taiga-ui/core/styles/taiga-ui-local';
+@import "~@taiga-ui/core/styles/taiga-ui-local";
 
 @import "tailwindcss/base";
 @import "tailwindcss/components";
@@ -10,8 +10,9 @@ $roboto-font: "Roboto";
 
 body {
   // background-color: #afc2d9;
-  background-image: url("./assets/images/113.png");
-  background-size: cover;
+  background-color: #8ec5fc;
+  background-image: linear-gradient(62deg, #8ec5fc 0%, #e0c3fc 100%);
+
   margin: 0px;
 }
 

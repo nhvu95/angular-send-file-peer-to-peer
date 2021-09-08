@@ -14,9 +14,12 @@ export class SignalingService {
   configuration = {
     iceServers: [
       {
-        urls: 'turn:18.219.253.176:3478?transport=tcp',
-        username: '<USERNAME>',
-        credential: '<PASSWORD>',
+        urls: 'turn:18.219.253.176:3478',
+        username: 'vietnam:vietnam',
+        credential: 'lt-cred-mech',
+      },
+      {
+        urls: 'stun:18.219.253.176:3478'
       },
     ],
   };

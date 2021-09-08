@@ -2,14 +2,14 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
-  ViewChild
+  ViewChild,
 } from '@angular/core';
 import { Select, Store } from '@ngxs/store';
 import { TuiStepperComponent } from '@taiga-ui/kit';
 import {
   FileSystemDirectoryEntry,
   FileSystemFileEntry,
-  NgxFileDropEntry
+  NgxFileDropEntry,
 } from 'ngx-file-drop';
 import { StateReset } from 'ngxs-reset-plugin';
 import { Observable } from 'rxjs';
@@ -19,6 +19,9 @@ import { CommonService } from '../services/common.service';
 import { AppendFilesAction, InitChanelAction } from './sender.action';
 import { SenderSelectors } from './sender.selectors';
 import { SenderState } from './sender.state';
+import { Injector } from '@angular/core';
+import { TuiDialogService } from '@taiga-ui/core';
+import { SignalingSender } from '../services/signaling-sender.service';
 
 @Component({
   selector: 'sender',
@@ -37,14 +40,17 @@ export class SenderComponent implements AfterViewInit {
 
   @ViewChild('stepper') stepper: TuiStepperComponent;
 
-  constructor(private store: Store, private commonService: CommonService) {
+  constructor(
+    private store: Store,
+    private commonService: CommonService,
+    private signalingSender: SignalingSender
+  ) {
     console.log('SenderComponent init');
-    this.store.dispatch(
-      new StateReset(SenderState)
-    );
+    this.store.dispatch(new StateReset(SenderState));
   }
 
   ngAfterViewInit(): void {
+    this.signalingSender.initCoordinatorChanel(null);
   }
 
   initChanel() {
@@ -74,7 +80,7 @@ export class SenderComponent implements AfterViewInit {
         status: 0,
         fileData: file,
         totalPart: 1,
-        fileSize: file.size
+        fileSize: file.size,
       };
     });
     return filesMap;
@@ -89,7 +95,7 @@ export class SenderComponent implements AfterViewInit {
   //dragDropFilePart
   dropped(files: NgxFileDropEntry[]) {
     this.files = files;
-    if(files.length > 0) {
+    if (files.length > 0) {
       this.showGuide = true;
     }
     for (const droppedFile of files) {

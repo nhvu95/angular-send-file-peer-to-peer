@@ -4,7 +4,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { NgxsModule } from '@ngxs/store';
-import { TuiButtonModule, TuiRootModule } from '@taiga-ui/core';
+import { TuiButtonModule, TuiDialogModule, TuiRootModule } from '@taiga-ui/core';
 import {
   TuiMarkerIconModule,
   TuiStepperComponent,
@@ -30,6 +30,7 @@ import { SenderState } from './sender.state';
     TuiMarkerIconModule,
     TuiButtonModule,
     TuiStepperModule,
+    TuiDialogModule,
     NgxFileDropModule,
     FormsModule,
     ReactiveFormsModule,
