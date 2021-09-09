@@ -8,11 +8,13 @@ import { ScullyLibModule } from '@scullyio/ng-lib';
 import {
   InjectableRxStompConfig,
   RxStompService,
-  rxStompServiceFactory
+  rxStompServiceFactory,
 } from '@stomp/ng2-stompjs';
 import {
   TuiButtonModule,
-  TuiDialogModule, TuiRootModule
+  TuiDialogModule,
+  TuiNotificationsModule,
+  TuiRootModule,
 } from '@taiga-ui/core';
 import { TuiAvatarModule } from '@taiga-ui/kit';
 import { environment } from 'src/environments/environment';
@@ -22,7 +24,6 @@ import { AppState } from './app.state';
 import { HttpConfigInterceptor } from './interceptor/http.interceptor';
 import { CommonService } from './services/common.service';
 import { RTCRxStompConfig } from './services/rx-stomp.config';
-
 
 @NgModule({
   declarations: [AppComponent],
@@ -34,6 +35,7 @@ import { RTCRxStompConfig } from './services/rx-stomp.config';
     TuiAvatarModule,
     TuiButtonModule,
     TuiDialogModule,
+    TuiNotificationsModule,
     NgxsModule.forRoot([AppState], {
       developmentMode: !environment.production,
     }),
@@ -56,8 +58,9 @@ import { RTCRxStompConfig } from './services/rx-stomp.config';
       useFactory: rxStompServiceFactory,
       deps: [InjectableRxStompConfig],
     },
-    CommonService
+    CommonService,
   ],
   bootstrap: [AppComponent],
+  exports: [],
 })
 export class AppModule {}

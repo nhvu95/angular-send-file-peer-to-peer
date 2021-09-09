@@ -2,7 +2,7 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
-  ViewChild
+  ViewChild,
 } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -11,14 +11,14 @@ import { TuiStepperComponent } from '@taiga-ui/kit';
 import { NgxFileDropEntry } from 'ngx-file-drop';
 import { StateReset } from 'ngxs-reset-plugin';
 import { Observable } from 'rxjs';
-import { concatMap } from 'rxjs/operators';
+import { concatMap, switchMap, takeUntil } from 'rxjs/operators';
 import { v1 as uuidv1 } from 'uuid';
 import { IFileSending } from '../app.model';
 import { CommonService } from '../services/common.service';
 import {
   AccessChanelAction,
   SetCurrentStepAction,
-  StartLeechingAction
+  StartLeechingAction,
 } from './receiver.action';
 import { ReceiverSelectors } from './receiver.selectors';
 import { ReceiverState } from './receiver.state';
@@ -63,7 +63,7 @@ export class ReceiverComponent implements AfterViewInit {
         const val = res.accessKey.split(' ');
         this.leechForm.setValue({ channelId: val[0], accessKey: val[1] });
       }
-      if(res.channelId && res.accessKey ) {
+      if (res.channelId && res.accessKey) {
         this.showGuide = true;
       }
     });

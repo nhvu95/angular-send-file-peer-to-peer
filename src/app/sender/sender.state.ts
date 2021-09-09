@@ -1,5 +1,5 @@
 import { Injectable, Injector } from '@angular/core';
-import { Action, NgxsOnInit, State, StateContext } from '@ngxs/store';
+import { Action, NgxsOnInit, Selector, State, StateContext } from '@ngxs/store';
 import produce from 'immer';
 import { v1 as uuidv1 } from 'uuid';
 import { _TInstanceState } from '../app.model';
@@ -7,8 +7,9 @@ import { SetCurrentStepAction } from '../receiver/receiver.action';
 import { SignalingSender } from '../services/signaling-sender.service';
 import {
   AppendFilesAction,
+  DeleteFilesAction,
   InitChanelAction,
-  UpdateFileSenderProgressAction
+  UpdateFileSenderProgressAction,
 } from './sender.action';
 
 interface _SenderStateModel extends _TInstanceState {
@@ -20,7 +21,6 @@ interface _SenderStateModel extends _TInstanceState {
   }[];
   currentStep: number;
 }
-
 export interface SenderStateModel extends Partial<_SenderStateModel> {}
 
 @State<SenderStateModel>({
@@ -67,6 +67,7 @@ export class SenderState implements NgxsOnInit {
     const state = ctx.getState();
 
     this.signalingService = this.injector.get(SignalingSender);
+    this.signalingService.localFilesSelector = SenderSelectors.localFiles;
     this.signalingService.setLocalIdAndStartListenMessage(state.localId);
 
     console.log('Action', action);
@@ -111,6 +112,19 @@ export class SenderState implements NgxsOnInit {
         }
         const files = [...draft.localFiles, ...action.files];
         draft.localFiles = files.slice(-3);
+      })
+    );
+  }
+
+  @Action(DeleteFilesAction)
+  deleteFile(ctx: StateContext<SenderStateModel>, action: DeleteFilesAction) {
+    console.log('Action', action);
+    ctx.setState(
+      produce((draft) => {
+        let tmpList = draft.localFiles.filter(
+          (val, index) => index != action.fileIndex
+        );
+        draft.localFiles = tmpList;
       })
     );
   }
@@ -163,5 +177,42 @@ export class SenderState implements NgxsOnInit {
         }
       })
     );
+  }
+}
+
+export class SenderSelectors {
+  @Selector([SenderState])
+  static isReadyToSend(state: SenderStateModel) {
+    return !!state.channelId && !!state.accessKey;
+  }
+
+  @Selector([SenderState])
+  static localId(state: SenderStateModel) {
+    return state.localId;
+  }
+
+  @Selector([SenderState])
+  static steps(state: SenderStateModel) {
+    return state.steps;
+  }
+
+  @Selector([SenderState])
+  static currentStep(state: SenderStateModel) {
+    return state.currentStep;
+  }
+
+  @Selector([SenderState])
+  static channelId(state: SenderStateModel) {
+    return state.channelId;
+  }
+
+  @Selector([SenderState])
+  static accessKey(state: SenderStateModel) {
+    return state.accessKey;
+  }
+
+  @Selector([SenderState])
+  static localFiles(state: SenderStateModel) {
+    return state.localFiles.filter((file) => file.fileId !== '-1');
   }
 }

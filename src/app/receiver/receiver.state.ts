@@ -1,18 +1,19 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import {
-  Injectable,
-  Injector
-} from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
+import { Router } from '@angular/router';
 import { Action, State, StateContext } from '@ngxs/store';
 import produce from 'immer';
+import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import { v1 as uuidv1 } from 'uuid';
 import { _TInstanceState } from '../app.model';
 import { CommonService } from '../services/common.service';
 import { SignalingReceiver } from '../services/signaling-receiver.service';
 import {
-  AccessChanelAction, AddNewFileInfoAction, SetCurrentStepAction,
+  AccessChanelAction,
+  AddNewFileInfoAction,
+  SetCurrentStepAction,
   StartLeechingAction,
-  UpdateFileReceiveProgressAction
+  UpdateFileReceiveProgressAction,
 } from './receiver.action';
 
 interface _ReceiverStateModel extends Partial<_TInstanceState> {
@@ -49,7 +50,8 @@ export class ReceiverState {
   signalingService: SignalingReceiver;
   constructor(
     private injector: Injector,
-    private commonService: CommonService
+    private commonService: CommonService,
+    private router: Router
   ) {}
 
   ngxsOnInit(ctx?: StateContext<ReceiverStateModel>) {
@@ -89,6 +91,21 @@ export class ReceiverState {
     this.signalingService.setLocalIdAndStartListenMessage(state.localId);
 
     console.log('SetCurrentStepAction', action);
+    if (action.step == 3) {
+      this.commonService
+        .showConfirm('Download complete!')
+        .pipe(
+          tap((res) => {
+            action.step = -1;
+          }),
+          takeUntil(this.router.events)
+        )
+        .subscribe((res) => {
+          this.router.navigateByUrl('/').then((res) => {
+            window.location.reload();
+          });
+        });
+    }
     ctx.setState(
       produce((draft) => {
         const tep = draft.currentStep;
@@ -110,12 +127,19 @@ export class ReceiverState {
   }
 
   @Action(AddNewFileInfoAction)
-  addFiles(ctx: StateContext<ReceiverStateModel>, action: AddNewFileInfoAction) {
+  addFiles(
+    ctx: StateContext<ReceiverStateModel>,
+    action: AddNewFileInfoAction
+  ) {
     console.log('Action', action);
     ctx.setState(
       produce((draft) => {
-        if(draft.localFiles.findIndex(file => file.fileId === action.file.fileId) === -1) {
-          draft.localFiles.push({...action.file});
+        if (
+          draft.localFiles.findIndex(
+            (file) => file.fileId === action.file.fileId
+          ) === -1
+        ) {
+          draft.localFiles.push({ ...action.file });
         }
       })
     );
@@ -126,7 +150,7 @@ export class ReceiverState {
     const self = this;
     const state = ctx.getState();
     console.log('startLeeching');
-    this.setCurrentSate(ctx, new SetCurrentStepAction(1))
+    this.setCurrentSate(ctx, new SetCurrentStepAction(1));
 
     // Get next peer
     // Step 1
@@ -142,7 +166,7 @@ export class ReceiverState {
           self.signalingService.setRemoteId(senderId);
           // Step 2
           self.signalingService.preflightToSender(res.fileId, res.partId);
-          this.setCurrentSate(ctx, new SetCurrentStepAction(2))
+          this.setCurrentSate(ctx, new SetCurrentStepAction(2));
         }
       },
       (err: HttpErrorResponse) => {
@@ -162,8 +186,8 @@ export class ReceiverState {
         const idx = draft.localFiles.findIndex(
           (file) => file.fileId === action.fileId
         );
-        if (idx > 0) {
-          const currentSize: number = draft.localFiles[idx].currentSize;
+        if (idx >= 0) {
+          const currentSize: number = draft.localFiles[idx].currentSize | 0;
           draft.localFiles[idx].currentSize = currentSize + action.increaseSize;
           //prettier-ignore
           if ( draft.localFiles[idx].currentSize > draft.localFiles[idx].fileSize ) {

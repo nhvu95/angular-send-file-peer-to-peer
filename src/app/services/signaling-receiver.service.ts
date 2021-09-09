@@ -182,7 +182,7 @@ export class SignalingReceiver extends SignalingService {
       this.dataChannel.close();
       console.log(`Closed data channel with label: ${this.dataChannel.label}`);
       this.dataChannel = null;
-      this.store.dispatch(new SetCurrentStepAction(2));
+      this.store.dispatch(new SetCurrentStepAction(3));
     }
 
     this.localConnection.close();

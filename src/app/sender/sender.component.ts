@@ -16,12 +16,13 @@ import { Observable } from 'rxjs';
 import { v1 as uuidv1 } from 'uuid';
 import { IFileSending } from '../app.model';
 import { CommonService } from '../services/common.service';
-import { AppendFilesAction, InitChanelAction } from './sender.action';
-import { SenderSelectors } from './sender.selectors';
-import { SenderState } from './sender.state';
-import { Injector } from '@angular/core';
-import { TuiDialogService } from '@taiga-ui/core';
 import { SignalingSender } from '../services/signaling-sender.service';
+import {
+  AppendFilesAction,
+  DeleteFilesAction,
+  InitChanelAction,
+} from './sender.action';
+import { SenderSelectors, SenderState } from './sender.state';
 
 @Component({
   selector: 'sender',
@@ -59,6 +60,10 @@ export class SenderComponent implements AfterViewInit {
     );
     if (files && files.length > 0) {
       this.showGuide = false;
+      this.commonService.showNotify(
+        "Wait until step2 complete then share 'link' or 'id | key'  to your friends ",
+        'Initialize Chanel'
+      );
       return this.store.dispatch(new InitChanelAction());
     } else {
       this.stepper.activeItemIndex = -1;
@@ -90,7 +95,9 @@ export class SenderComponent implements AfterViewInit {
     item.nodeValue = null;
     item.click();
   }
-  onClose(item) {}
+  onClose(index) {
+    this.store.dispatch(new DeleteFilesAction(index));
+  }
 
   //dragDropFilePart
   dropped(files: NgxFileDropEntry[]) {

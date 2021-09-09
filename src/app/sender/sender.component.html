@@ -35,7 +35,7 @@
 <ng-container *ngIf="files$ | async as files">
   <div *ngIf="!files || files.length === 0" div class="e1_20">
     <div class="e1_10"></div>
-    <div class="e1_21"></div>
+    <div class="e1_21 add-icn"></div>
     <div class="e1_24">
       <span class="e1_22 ellipsis">PLEASE SELECT AT LEAST 1 FILE...</span>
       <div class="e1_23">
@@ -51,7 +51,7 @@
   </div>
   <div *ngIf="files && files[0]" div class="e1_20">
     <div class="e1_10"></div>
-    <div class="e1_21"></div>
+    <div [ngClass]="(files[0].fileName | fileName) + ' e1_21'"></div>
     <div class="e1_24">
       <span class="e1_22 ellipsis">{{ files[0].fileName }}</span>
       <div class="e1_23">
@@ -67,12 +67,12 @@
       type="button"
       class="e104_1"
       icon="tuiIconCloseLarge"
-      (click)="onClose($event)"
+      (click)="onClose(0)"
     ></button>
   </div>
   <div *ngIf="files && files[1]" class="e1_33">
     <div class="ei1_33_1_10"></div>
-    <div class="ei1_33_1_21"></div>
+    <div [ngClass]="(files[1].fileName | fileName) + ' ei1_33_1_21'"></div>
     <div class="ei1_33_1_24">
       <span class="ei1_33_1_22 ellipsis">{{ files[1].fileName }}</span>
       <div class="ei1_33_1_23">
@@ -88,12 +88,12 @@
       type="button"
       class="ei1_33_104_1"
       icon="tuiIconCloseLarge"
-      (click)="onClose($event)"
+      (click)="onClose(1)"
     ></button>
   </div>
   <div *ngIf="files && files[2]" class="e1_42">
     <div class="ei1_42_1_10"></div>
-    <div class="ei1_42_1_21"></div>
+    <div [ngClass]="(files[2].fileName | fileName) + ' ei1_42_1_21'"></div>
     <div class="ei1_42_1_24">
       <span class="ei1_42_1_22 ellipsis">{{ files[2].fileName }}</span>
       <div class="ei1_42_1_23">
@@ -109,7 +109,7 @@
       type="button"
       class="ei1_42_104_1"
       icon="tuiIconCloseLarge"
-      (click)="onClose($event)"
+      (click)="onClose(2)"
     ></button>
   </div>
 </ng-container>

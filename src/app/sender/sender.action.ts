@@ -5,6 +5,11 @@ export class InitChanelAction {
   constructor() {}
 }
 
+export class DeleteFilesAction {
+  static readonly type = 'SA2_1';
+  constructor(public fileIndex: number) {}
+}
+
 export class AppendFilesAction {
   static readonly type = 'SA2';
   constructor(public files: IFileSending[]) {}

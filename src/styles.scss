@@ -34,8 +34,48 @@ button:focus {
   --tui-text-font: var(roboto-font);
 }
 
+.button-ok {
+  background-color: #e6950b;
+  border-radius: 5px;
+  width: 50px;
+  cursor: pointer;
+  border: 1px solid #b35b09;
+  text-align: center;
+}
+.button-ok:hover {
+  background-color: #f1b753;
+}
+.button-ok:active {
+  background-color: #ff7b00;
+}
+
 .ellipsis {
   @apply overflow-ellipsis;
   @apply overflow-hidden;
   @apply whitespace-nowrap;
+}
+
+.add-icn {
+  background-image: url("/assets/images/add.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+.picture-icn {
+  background-image: url("/assets/images/picture.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+.rar-icn {
+  background-image: url("/assets/images/rar.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+.doc-icn {
+  background-image: url("/assets/images/document.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
 }

@@ -12,13 +12,15 @@ import {
   SignalingMessage
 } from '../app.model';
 import { UpdateFileSenderProgressAction } from '../sender/sender.action';
-import { SenderSelectors } from '../sender/sender.selectors';
 import { SignalingService } from './signaling.service';
 
 @Injectable({
   providedIn: 'any',
 })
 export class SignalingSender extends SignalingService {
+  // Re write code to avoid circular dependency
+  localFilesSelector: any;
+
   constructor(
     protected readonly httpClient: HttpClient,
     protected readonly rxStompService: RxStompService,
@@ -63,13 +65,13 @@ export class SignalingSender extends SignalingService {
   async sendOfferToReceiver(askingFile: { fileId; partId }) {
     try {
       //prettier-ignore
-      const files = this.store.selectSnapshot<IFileSending[]>( SenderSelectors.localFiles );
+      const files = this.store.selectSnapshot<IFileSending[]>(this.localFilesSelector);
       const file = files.find((file) => file.fileId === askingFile.fileId);
       if (file) {
         const offer = await this.localConnection.createOffer();
         await this.localConnection.setLocalDescription(offer);
 
-        this.rxStompService.publish({ 
+        this.rxStompService.publish({
           destination: `/topic/${this.remoteId}`,
           body: JSON.stringify(
             new SignalingMessage(this.localId, this.remoteId, 'offer', offer, {
@@ -125,7 +127,9 @@ export class SignalingSender extends SignalingService {
       offset += data.byteLength;
 
       // Update send progress
-      self.store.dispatch(new UpdateFileSenderProgressAction(fileInput.fileId, chunkSize));
+      self.store.dispatch(
+        new UpdateFileSenderProgressAction(fileInput.fileId, chunkSize)
+      );
 
       if (offset < fileData.size) {
         readSlice(offset);
