@@ -4,7 +4,7 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 ## Sample
 
-Sample here: f2f.nhvu95.com
+Sample here: [File 2 Friends](https://f2f.nhvu95.com/)
 
 ## Development server
 
