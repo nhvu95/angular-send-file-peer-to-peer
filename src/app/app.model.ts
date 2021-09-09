@@ -40,7 +40,8 @@ export type isingal =
   | 'answer'
   | 'iceCandidate'
   | 'preflight'
-  | 'closeChanel';
+  | 'closeChanel'
+  | 'im-done';
 export interface _ISignalingMessage {
   from: string;
   to: string;
@@ -55,7 +56,13 @@ export class SignalingMessage implements _ISignalingMessage {
   content: isingal;
   data: any;
   info: IFileInformation;
-  constructor(from: string, to: string, content: isingal, data: any, info: IFileInformation = null) {
+  constructor(
+    from: string,
+    to: string,
+    content: isingal,
+    data: any,
+    info: IFileInformation = null
+  ) {
     this.from = from;
     this.to = to;
     this.content = content;

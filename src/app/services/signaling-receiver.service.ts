@@ -7,14 +7,15 @@ import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import {
   IFileInformation,
-  IGetNextPartResDTO, IPreFlightModel,
+  IGetNextPartResDTO,
+  IPreFlightModel,
   ISignalingMessage,
-  SignalingMessage
+  SignalingMessage,
 } from '../app.model';
 import {
   AddNewFileInfoAction,
   SetCurrentStepAction,
-  UpdateFileReceiveProgressAction
+  UpdateFileReceiveProgressAction,
 } from '../receiver/receiver.action';
 import { SignalingService } from './signaling.service';
 
@@ -135,11 +136,26 @@ export class SignalingReceiver extends SignalingService {
 
     const file = this.crrFileInfo;
     // Update send progress
-    this.store.dispatch(new UpdateFileReceiveProgressAction(file.fileId, event.data.byteLength));
+    this.store.dispatch(
+      new UpdateFileReceiveProgressAction(file.fileId, event.data.byteLength)
+    );
 
     if (this.receivedSize === file.fileSize) {
       const received = new Blob(this.receiveBuffer);
       this.receiveBuffer = [];
+
+      // Notice to sender that download complete
+      let message: ISignalingMessage = {
+        from: this.localId,
+        to: this.remoteId,
+        content: 'im-done',
+        data: <IPreFlightModel>{ fileId: file.fileId },
+      };
+      this.rxStompService.publish({
+        destination: `/topic/${this.remoteId}`,
+        body: JSON.stringify(message),
+      });
+
       FileSaver.saveAs(received, file.fileName);
 
       // TODO: need another way to save a stream. instead of using fileSaver saveAs
@@ -150,7 +166,7 @@ export class SignalingReceiver extends SignalingService {
       const bitrate = Math.round(
         (this.receivedSize * 8) / (new Date().getTime() - this.timestampStart)
       );
-      
+
       console.log(
         `Average Bitrate: ${bitrate} kbits/sec (max: ${this.bitrateMax} kbits/sec)`
       );

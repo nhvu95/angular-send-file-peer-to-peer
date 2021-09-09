@@ -24,3 +24,9 @@ export class UpdateFileSenderProgressAction {
   static readonly type = 'SA4';
   constructor(public fileId: String, public increaseSize: number) {}
 }
+
+
+export class CannotConnectToPeer {
+  static readonly type = 'SA45';
+  constructor(public fileId: String) {}
+}

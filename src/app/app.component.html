@@ -54,5 +54,9 @@
         ></button>
       </div>
     </ng-template>
+    <div *ngIf="readyToSend$ | async" class="lds-ripple lds-ripple2">
+      <div></div>
+      <div></div>
+    </div>
   </div>
 </tui-root>

@@ -648,10 +648,18 @@
 .lds-ripple {
   display: inline-block;
   position: relative !important;
+  pointer-events: none;
   width: 80px;
   height: 80px;
   top: 405px;
   left: 36px;
+}
+.lds-ripple2 {
+  width: 180px;
+  height: 180px;
+  top: 630px;
+  left: 990px;
+  pointer-events: none;
 }
 .lds-ripple div {
   position: absolute;

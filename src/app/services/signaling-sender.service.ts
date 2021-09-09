@@ -9,9 +9,13 @@ import {
   IInitChanelReqDTO,
   IInitChanelResDTO,
   ISignalingMessage,
-  SignalingMessage
+  SignalingMessage,
 } from '../app.model';
-import { UpdateFileSenderProgressAction } from '../sender/sender.action';
+import {
+  CannotConnectToPeer,
+  UpdateFileSenderProgressAction,
+} from '../sender/sender.action';
+import { CommonService } from './common.service';
 import { SignalingService } from './signaling.service';
 
 @Injectable({
@@ -24,6 +28,7 @@ export class SignalingSender extends SignalingService {
   constructor(
     protected readonly httpClient: HttpClient,
     protected readonly rxStompService: RxStompService,
+    protected commonService: CommonService,
     protected store: Store
   ) {
     super(httpClient, rxStompService);
@@ -56,6 +61,13 @@ export class SignalingSender extends SignalingService {
       }
       case 'answer': {
         await this.localConnection.setRemoteDescription(message.data);
+        break;
+      }
+      case 'im-done': {
+        this.commonService.showNotify(
+          'Your friend was downloading completely! You can close the tab now!',
+          'Attention'
+        );
         break;
       }
     }
@@ -123,7 +135,14 @@ export class SignalingSender extends SignalingService {
     fileReader.addEventListener('load', (e) => {
       console.log('FileRead.onload ', e);
       const data = <ArrayBuffer>e.target.result;
-      self.dataChannel.send(data);
+      try {
+        self.dataChannel.send(data);
+      } catch (e) {
+        // Set progress to zero
+        console.log('Cannot connect to your friend');
+        self.store.dispatch(new CannotConnectToPeer(fileInput.fileId));
+        return;
+      }
       offset += data.byteLength;
 
       // Update send progress

@@ -4,9 +4,11 @@ import produce from 'immer';
 import { v1 as uuidv1 } from 'uuid';
 import { _TInstanceState } from '../app.model';
 import { SetCurrentStepAction } from '../receiver/receiver.action';
+import { CommonService } from '../services/common.service';
 import { SignalingSender } from '../services/signaling-sender.service';
 import {
   AppendFilesAction,
+  CannotConnectToPeer,
   DeleteFilesAction,
   InitChanelAction,
   UpdateFileSenderProgressAction,
@@ -41,7 +43,10 @@ export interface SenderStateModel extends Partial<_SenderStateModel> {}
 @Injectable()
 export class SenderState implements NgxsOnInit {
   signalingService: SignalingSender;
-  constructor(private injector: Injector) {
+  constructor(
+    private injector: Injector,
+    private commonService: CommonService
+  ) {
     console.log('SenderState init');
   }
 
@@ -170,12 +175,24 @@ export class SenderState implements NgxsOnInit {
         if (idx >= 0) {
           const currentSize: number = draft.localFiles[idx].currentSize;
           draft.localFiles[idx].currentSize = currentSize + action.increaseSize;
+
           //prettier-ignore
           if ( draft.localFiles[idx].currentSize > draft.localFiles[idx].fileSize ) {
             draft.localFiles[idx].currentSize = draft.localFiles[idx].fileSize;
           }
         }
       })
+    );
+  }
+
+  @Action(CannotConnectToPeer)
+  cannotConnectToPeer(
+    ctx: StateContext<SenderStateModel>,
+    action: CannotConnectToPeer
+  ) {
+    this.commonService.showNotify(
+      'Your friend was disconnected ! \nWait until he reconnect!',
+      'Error'
     );
   }
 }
