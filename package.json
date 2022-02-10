@@ -8,7 +8,9 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "deploy": "gh-pages -d dist/webrtc"
+    "deploy": "gh-pages -d dist/webrtc",
+    "auto": "npm run build && echo f2f.nhvu95.com > ./dist/webrtc/CNAME && npm run deploy"
+
   },
   "private": true,
   "dependencies": {
