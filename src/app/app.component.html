@@ -2,17 +2,24 @@
   <div class="e1_2">
     <div class="e3_20">
       <div class="e1_57 z-10">
-        <span class="e1_59 cursor-pointer" [routerLink]="'/receiver'"
-          >RECEIVE</span
-        >
-        <span class="e1_56 cursor-pointer" [routerLink]="'/'">SEND</span>
-        <div class="e2_32 cursor-pointer"></div>
+        <tui-tabs [(activeItemIndex)]="activeItemIndex">
+          <button tuiTab [routerLink]="'/'">
+            <tui-svg src="tuiIconUploadLarge" class="tui-space_right-2"></tui-svg>
+            SEND
+          </button>
+          <button tuiTab [routerLink]="'/receiver'">
+            <tui-svg src="tuiIconDownloadLarge" class="tui-space_right-2"></tui-svg>
+            RECEIVE
+          </button>
+        </tui-tabs>
       </div>
       <router-outlet></router-outlet>
     </div>
     <span class="e103_61">copyright: www.nhvu95.com</span>
     <div class="e103_63">
-      <div class="e103_62"></div>
+      <div class="e103_62">
+        <h1>F2F</h1>
+      </div>
       <ul class="e103_59">
         <li>1. NO STORE YOUR FILE ON SERVER</li>
         <li>2. SEND DIRECTLY TO YOUR FRIENDS</li>
@@ -54,7 +61,10 @@
         ></button>
       </div>
     </ng-template>
-    <div *ngIf="readyToSend$ | async" class="lds-ripple lds-ripple2">
+    <div
+      *ngIf="(readyToSend$ | async) && notClickCopy"
+      class="lds-ripple lds-ripple2"
+    >
       <div></div>
       <div></div>
     </div>

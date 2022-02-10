@@ -4,19 +4,19 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgxsModule } from '@ngxs/store';
-import { ScullyLibModule } from '@scullyio/ng-lib';
 import {
   InjectableRxStompConfig,
   RxStompService,
-  rxStompServiceFactory,
+  rxStompServiceFactory
 } from '@stomp/ng2-stompjs';
 import {
   TuiButtonModule,
   TuiDialogModule,
   TuiNotificationsModule,
   TuiRootModule,
+  TuiSvgModule
 } from '@taiga-ui/core';
-import { TuiAvatarModule } from '@taiga-ui/kit';
+import { TuiTabsModule } from '@taiga-ui/kit';
 import { environment } from 'src/environments/environment';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -32,7 +32,7 @@ import { RTCRxStompConfig } from './services/rx-stomp.config';
     BrowserAnimationsModule,
     AppRoutingModule,
     TuiRootModule,
-    TuiAvatarModule,
+    // TuiAvatarModule,
     TuiButtonModule,
     TuiDialogModule,
     TuiNotificationsModule,
@@ -40,7 +40,8 @@ import { RTCRxStompConfig } from './services/rx-stomp.config';
       developmentMode: !environment.production,
     }),
     HttpClientModule,
-    ScullyLibModule,
+    TuiTabsModule,
+    TuiSvgModule
   ],
   providers: [
     AsyncPipe,

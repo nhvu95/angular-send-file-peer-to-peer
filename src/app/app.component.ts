@@ -17,6 +17,9 @@ export class AppComponent {
   title = 'webrtc';
   @Select(SenderSelectors.isReadyToSend) readyToSend$: Observable<boolean>;
   isSender$: Observable<boolean> = of(false);
+  notClickCopy = true;
+
+  activeItemIndex = 0;
 
   constructor(
     private router: Router,
@@ -43,6 +46,7 @@ export class AppComponent {
     });
   }
   copyData() {
+    this.notClickCopy = false;
     const channelId = this.store.selectSnapshot<String>(
       SenderSelectors.channelId
     );
@@ -52,6 +56,7 @@ export class AppComponent {
     this.ngxCopy.copy(channelId + '\n' + accessKey);
   }
   copyLink() {
+    this.notClickCopy = false;
     this.commonService.showNotify(
       "Copy link success\nDon't close this tab until your friend downloads complete",
       'Attention'

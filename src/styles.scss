@@ -4,10 +4,11 @@
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
-@import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
 
 $roboto-font: "Roboto";
 
+$bg-image: url("/assets/images/icons_set.svg");
+$bg-size: 500px 200px;
 body {
   // background-color: #afc2d9;
   background-color: #8ec5fc;
@@ -56,26 +57,26 @@ button:focus {
 }
 
 .add-icn {
-  background-image: url("/assets/images/add.svg");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
+  background-image: $bg-image;
+  background-size: $bg-size;
+  background-position-x: -250px;
+  background-position-y: -100px;
 }
 .picture-icn {
-  background-image: url("/assets/images/picture.svg");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
+  background-image: $bg-image;
+  background-size: $bg-size;
+  background-position-x: -250px;
+  background-position-y: -0px;
 }
 .rar-icn {
-  background-image: url("/assets/images/rar.svg");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
+  background-image: $bg-image;
+  background-size: $bg-size;
+  background-position-x: -250px;
+  background-position-y: -50px;
 }
 .doc-icn {
-  background-image: url("/assets/images/document.svg");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
+  background-image: $bg-image;
+  background-size: $bg-size;
+  background-position-x: -250px;
+  background-position-y: -150px;
 }

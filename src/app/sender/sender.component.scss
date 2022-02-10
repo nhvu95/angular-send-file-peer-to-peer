@@ -1,4 +1,6 @@
 // component css goes here
+$bg-image: url("/assets/images/icons_set.svg");
+$bg-size:  625px 250px;
 
 ::ng-deep .ngx-file-drop__content {
   position: absolute;
@@ -31,9 +33,10 @@
   }
 }
 .e2_22 {
-  background-image: url(../../assets/images/rectangle_3.png);
-  background-repeat: no-repeat;
-  background-size: cover;
+  background-image: $bg-image;
+  background-size: $bg-size;
+  background-position-x: -375px;
+  background-position-y: 0px;
 }
 .e103_20 {
   top: 396px;

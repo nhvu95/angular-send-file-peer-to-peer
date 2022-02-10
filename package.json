@@ -4,12 +4,11 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build --configuration=production",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "scully": "npx scully --",
-    "scully:serve": "npx scully serve --"
+    "deploy": "gh-pages -d dist/webrtc"
   },
   "private": true,
   "dependencies": {
@@ -24,9 +23,6 @@
     "@angular/platform-browser-dynamic": "~12.0.0",
     "@angular/router": "~12.0.0",
     "@ngxs/store": "^3.7.1",
-    "@scullyio/init": "^1.1.4",
-    "@scullyio/ng-lib": "^1.0.0",
-    "@scullyio/scully": "^1.1.1",
     "@stomp/ng2-stompjs": "^8.0.0",
     "@stomp/stompjs": "^6.1.0",
     "@taiga-ui/cdk": "^2.9.1",
@@ -35,6 +31,7 @@
     "@taiga-ui/kit": "^2.9.1",
     "angular-progress-bar": "^1.0.11",
     "file-saver": "^2.0.5",
+    "gh-pages": "^3.2.3",
     "immer": "^9.0.2",
     "ngx-clipboard": "^14.0.1",
     "ngx-file-drop": "^11.1.0",
@@ -70,6 +67,7 @@
     "tailwindcss": "^2.1.2",
     "ts-node": "~8.3.0",
     "tslint": "~6.1.0",
-    "typescript": "~4.2.4"
+    "typescript": "~4.2.4",
+    "webpack-bundle-analyzer": "^4.5.0"
   }
 }
