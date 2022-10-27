@@ -2,13 +2,13 @@ import { InjectableRxStompConfig } from '@stomp/ng2-stompjs';
 
 export const RTCRxStompConfig: InjectableRxStompConfig = {
   // Which server?
-  brokerURL: 'wss://b-5e1f8142-e4d2-4755-a82a-753f6bdc572b-1.mq.us-east-2.amazonaws.com:61619',
+  brokerURL: 'ws://activemq.mindstone.cc?maximumConnections=1000&wireFormat.maxFrameSize=104857600',
 
   // Headers
   // Typical keys: login, passcode, host
   connectHeaders: {
-    login: 'webrtcclient',
-    passcode: 'webrtcclient',
+    login: null,
+    passcode: null,
   },
 
   // How often to heartbeat?
@@ -25,6 +25,7 @@ export const RTCRxStompConfig: InjectableRxStompConfig = {
   // It can be quite verbose, not recommended in production
   // Skip this key to stop logging to console
   debug: (msg: string): void => {
+    console.log(msg);
     // console.log(new Date(), msg);
   },
 };
