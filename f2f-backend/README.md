@@ -17,28 +17,28 @@ The following guides illustrate how to use some features concretely:
 * [Building REST services with Spring](https://spring.io/guides/tutorials/rest/)
 * [Accessing Data with JPA](https://spring.io/guides/gs/accessing-data-jpa/)
 
-#### Build JAR
+## Self host backend
+### Build JAR
 `gradlew build -x test`
 
-##### Build docker image
+### Build docker image
 `docker build -t f2f-backend .`
 
-##### Create docker network name tunnel
+### Create docker network name tunnel
 `docker network create tunnel`
 
-##### Build docker container
+### Build docker container
 `docker compose up -d`
 
-#### Config activemq password
-Then open activemq terminal in docker
+### Config activemq password
+The default activemq's password is `yourpassword`  
+If you want to change, please open activemq terminal in docker
 
 `bin/activemq encrypt --password activemq --input yourpassword`
 
-Copy Encrypted password and replace in client password of .\microservices\activemq\credentials-enc.properties
+Copy Encrypted password and replace in `client.password` inside .\microservices\activemq\credentials-enc.properties
 
-then restart activemq in docker
-
-Please careful that we only config the password one time
+then restart activemq in docker. However, please careful that we only config the password one time
 
 
 ### Additional Links
