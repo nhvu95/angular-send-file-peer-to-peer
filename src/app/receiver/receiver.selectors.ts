@@ -2,10 +2,6 @@ import { Selector } from '@ngxs/store';
 import { ReceiverState, ReceiverStateModel } from './receiver.state';
 
 export class ReceiverSelectors {
-  @Selector([ReceiverState])
-  static localId(state: ReceiverStateModel) {
-    return state.localId;
-  }
 
   @Selector([ReceiverState])
   static steps(state: ReceiverStateModel) {
@@ -18,17 +14,12 @@ export class ReceiverSelectors {
   }
 
   @Selector([ReceiverState])
-  static chanelId(state: ReceiverStateModel) {
-    return state.channelId;
-  }
-
-  @Selector([ReceiverState])
-  static accessKey(state: ReceiverStateModel) {
-    return state.accessKey;
-  }
-
-  @Selector([ReceiverState])
   static localFiles(state: ReceiverStateModel) {
     return state.localFiles;
+  }
+
+  @Selector([ReceiverState])
+  static localFilesComplete(state: ReceiverStateModel) {
+    return state.localFiles.filter(file => file.currentSize === file.fileSize);
   }
 }

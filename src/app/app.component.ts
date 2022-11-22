@@ -4,8 +4,8 @@ import { Select, Store } from '@ngxs/store';
 import { ClipboardService } from 'ngx-clipboard';
 import { Observable, of } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
-import { SenderSelectors } from './sender/sender.state';
-import { CommonService } from './services/common.service';
+import { AppSelectors } from '@shared/app.selector';
+import { SharedAppService } from '@shared/shared-app.service';
 
 @Component({
   selector: 'et-root',
@@ -15,7 +15,7 @@ import { CommonService } from './services/common.service';
 })
 export class AppComponent {
   title = 'webrtc';
-  @Select(SenderSelectors.isReadyToSend) readyToSend$: Observable<boolean>;
+  @Select(AppSelectors.isReadyToSend) readyToSend$: Observable<boolean>;
   isSender$: Observable<boolean> = of(false);
   notClickCopy = true;
 
@@ -25,7 +25,7 @@ export class AppComponent {
     private router: Router,
     private store: Store,
     private ngxCopy: ClipboardService,
-    private commonService: CommonService
+    private commonService: SharedAppService
   ) {
     this.isSender$ = this.router.events.pipe(
       filter((e) => e instanceof NavigationEnd),
@@ -45,16 +45,24 @@ export class AppComponent {
       }
     });
   }
+
+  /**
+   * Copy data from state to buffer
+   */
   copyData() {
     this.notClickCopy = false;
     const channelId = this.store.selectSnapshot<String>(
-      SenderSelectors.channelId
+      AppSelectors.getChannelId
     );
     const accessKey = this.store.selectSnapshot<String>(
-      SenderSelectors.accessKey
+      AppSelectors.getAccessKey
     );
     this.ngxCopy.copy(channelId + '\n' + accessKey);
   }
+
+  /**
+   * Copy Link
+   */
   copyLink() {
     this.notClickCopy = false;
     this.commonService.showNotify(
@@ -62,17 +70,16 @@ export class AppComponent {
       'Attention'
     );
     const channelId = this.store.selectSnapshot<String>(
-      SenderSelectors.channelId
+      AppSelectors.getChannelId
     );
     const accessKey = this.store.selectSnapshot<String>(
-      SenderSelectors.accessKey
+      AppSelectors.getAccessKey
     );
 
     const href = window.location.href;
     const idx = href.lastIndexOf('/');
     const url = href.substring(0, idx);
     const finalContent = `${url}/receiver?channelId=${channelId}&accessKey=${accessKey}`;
-    console.log('copyLink', finalContent);
     this.ngxCopy.copy(finalContent);
   }
 }

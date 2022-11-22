@@ -52,6 +52,7 @@
       class="e104_1"
       icon="tuiIconCloseLarge"
       (click)="onClose($event)"
+      [disabled]="true"
     ></button>
   </div>
   <div *ngIf="files && files[1]" class="e1_33">
@@ -69,6 +70,7 @@
       class="ei1_33_104_1"
       icon="tuiIconCloseLarge"
       (click)="onClose($event)"
+      [disabled]="true"
     ></button>
   </div>
   <div *ngIf="files && files[2]" class="e1_42">
@@ -86,6 +88,7 @@
       class="ei1_42_104_1"
       icon="tuiIconCloseLarge"
       (click)="onClose($event)"
+      [disabled]="true"
     ></button>
   </div>
 </ng-container>

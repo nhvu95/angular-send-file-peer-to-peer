@@ -1,40 +1,59 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { RxStompService } from '@stomp/ng2-stompjs';
-import { Message } from '@stomp/stompjs';
-import { BehaviorSubject } from 'rxjs';
+import { Store } from '@ngxs/store';
+import { SetPeerIdAction } from '@shared/app.action';
 import {
-  ISignalingMessage
-} from '../app.model';
+  EPeerState,
+  FilePart,
+  IInitChannelResDTO,
+  ISignalingMessage,
+} from '@shared/app.model';
+import { AppSelectors } from '@shared/app.selector';
+import { Message } from '@stomp/stompjs';
+import {
+  BehaviorSubject,
+  Observable,
+  ReplaySubject,
+  Subject,
+  Subscription,
+} from 'rxjs';
+import { share, takeUntil } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
+import { UpdateDataChannelStateAction } from '../sender/sender.action';
+import { RxStompBridgeService } from './rx-stomp-bridge.service';
+import { SharedAppService } from '../shared/shared-app.service';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class SignalingService {
   configuration = {
     iceServers: [
       {
-        urls: 'turn:18.219.253.176:3478',
-        username: 'vietnam:vietnam',
-        credential: 'lt-cred-mech',
+        urls: 'turn:turn.anyfirewall.com:443?transport=tcp',
+        username: 'webrtc',
+        credential: 'webrtc',
       },
       {
-        urls: 'stun:18.219.253.176:3478'
+        urls: 'stun:stun.l.google.com:19302',
       },
     ],
   };
 
-  localId: string;
-  remoteId: string;
+  peerId: number;
+  connectingPeerId: number;
+  isSenderScreen: boolean;
 
-  localConnection: RTCPeerConnection;
+  connection: RTCPeerConnection;
   dataChannel: RTCDataChannel;
 
-  _receivedMessages = new BehaviorSubject<ISignalingMessage>(null);
-  receivedMessages$ = this._receivedMessages.asObservable();
+  iceCandidates$ = new ReplaySubject<RTCIceCandidate>(100);
+  cleanIceCandidates$ = new Subject();
 
-  _dataChannel = new BehaviorSubject<String>(null);
-  dataChannel$ = this._dataChannel.asObservable();
+  _receivedMessages$ = new BehaviorSubject<ISignalingMessage>(null);
+  receivedMessages$ = this._receivedMessages$.asObservable().pipe(share());
+
+  subscription: Subscription;
+  // _dataChannelState = new BehaviorSubject<String>(null);
+  // dataChannelState$ = this._dataChannelState.asObservable();
 
   receiveBuffer = [];
   receivedSize = 0;
@@ -47,64 +66,124 @@ export class SignalingService {
 
   constructor(
     protected readonly httpClient: HttpClient,
-    protected readonly rxStompService: RxStompService
+    protected store: Store,
+    protected commonService: SharedAppService,
+    protected rxStompService: RxStompBridgeService
   ) {
     this.receivedMessages$.subscribe(async (message) => {
       await this.messageHandler(message);
+    });
+    this.store.select(AppSelectors.getScreen).subscribe((screen) => {
+      this.isSenderScreen = screen == 'sender';
+    });
+    this.peerId = Number(localStorage.getItem('peerLocalId'));
+    this.getLocalPeerId(this.peerId).subscribe((peerId) => {
+      localStorage.setItem('peerLocalId', String(peerId));
+      this.store.dispatch(new SetPeerIdAction(peerId));
+      this.setLocalIdAndStartListenMessage(peerId);
     });
   }
 
   createConnection() {}
 
-  async messageHandler(message: ISignalingMessage) {
-    if (message.content === 'iceCandidate' && message.data) {
-      console.log('Got iceCandidate message');
-      try {
-        this.localConnection.addIceCandidate(message.data);
-      } catch (e) {
-        console.log(e);
-      }
+  async messageHandler(message: ISignalingMessage) {}
+
+  /**
+   * Subcribe message from Signaling Channel
+   */
+  subcribeMessage() {
+    if (!this.subscription) {
+      this.subscription = this.rxStompService
+        .getRxMessage$()
+        .subscribe((message: Message) => {
+          const body = JSON.parse(message.body);
+          this._receivedMessages$.next(body);
+        });
     }
   }
 
-  subcribeMessage() {
-    this.rxStompService
-      .watch(`/topic/${this.localId}`)
-      .subscribe((message: Message) => {
-        this._receivedMessages.next(JSON.parse(message.body));
-      });
+  /**
+   * On Data Channel state change
+   */
+  onDataChannelStateChange() {
+    const self = this;
+    if (this.dataChannel) {
+      const readyState = this.dataChannel.readyState;
+      self.store.dispatch(new UpdateDataChannelStateAction(readyState));
+    }
   }
 
-  setLocalIdAndStartListenMessage(localId: string) {
-    this.localId = localId;
+  /**
+   * Set Local PeerId and start listen message from Signaling Channel (ActiveMQ)
+   * @param localId
+   */
+  setLocalIdAndStartListenMessage(localId: number) {
+    this.peerId = localId;
     this.subcribeMessage();
   }
 
-  setRemoteId(remoteId: string) {
-    this.remoteId = remoteId;
+  /**
+   * Set remote PeerId (Receiver Id)
+   * @param connectingPeerId
+   */
+  setConnectingId(connectingPeerId: number) {
+    this.connectingPeerId = connectingPeerId;
   }
 
+  /**
+   * Store ICE Candidate
+   * @param candidate
+   */
+  storeICECandidate(candidate: RTCIceCandidate) {
+    this.iceCandidates$.next(candidate);
+  }
+
+  /**
+   * Start sharing ICE Candidate
+   */
+  startSharingICECandidate() {
+    this.iceCandidates$
+      .pipe(takeUntil(this.cleanIceCandidates$))
+      .subscribe((ice) => {
+        this.sharingICECandidateToOtherParty(ice);
+      });
+  }
+
+  /**
+   * Close Connection
+   */
+  closeConnection() {
+    this.connection?.close();
+    this.connection?.removeAllListeners('webrtc-ice-candidate');
+    this.connection?.removeAllListeners('datachannel');
+    this.connection?.removeAllListeners('open');
+
+    this.cleanIceCandidates$.next(true);
+    this.cleanIceCandidates$.complete();
+    this.cleanIceCandidates$ = new Subject();
+    this.iceCandidates$ = new ReplaySubject(100);
+
+    this.connection = null;
+  }
+
+  /**
+   * When a peer get ICE candidate, it share ICE with others
+   * @param candidate
+   */
   sharingICECandidateToOtherParty(candidate: RTCIceCandidate) {
     const message: ISignalingMessage = {
-      from: this.localId,
-      to: this.remoteId,
-      content: 'iceCandidate',
+      from: this.peerId,
+      to: this.connectingPeerId,
+      content: 'webrtc-ice-candidate',
       data: candidate,
     };
-
-    this.rxStompService.publish({
-      destination: `/topic/${this.remoteId}`,
-      body: JSON.stringify(message),
-    });
+    this.rxStompService.publish(message, this.connectingPeerId);
   }
 
   // display bitrate statistics.
   async displayStats() {
-    if (
-      this.localConnection &&
-      this.localConnection.iceConnectionState === 'connected'
-    ) {
-      const stats: any = await this.localConnection.getStats();
+    if (this.connection && this.connection.iceConnectionState === 'connected') {
+      const stats: any = await this.connection.getStats();
       let activeCandidatePair;
       stats.forEach((report) => {
         if (report.type === 'transport') {
@@ -130,5 +209,143 @@ export class SignalingService {
         }
       }
     }
+  }
+
+  /** ======================================================================================================================
+   *                                                      API Integrate                                                      
+   *  ======================================================================================================================/ 
+
+  /**
+   * STEP 1: Get local peer Id
+   * @returns peerId
+   */
+  getLocalPeerId(peerId: number = null): Observable<number> {
+    return this.httpClient.get<number>(
+      [environment.API_HOST, environment.EV_PATH, environment.PEER_PATH].join(
+        '/'
+      ),
+      { params: { peerId } }
+    );
+  }
+
+  // STEP 2: Sender initialize and signaling channel
+  initializeSignalingChannel(peerId: number): Observable<IInitChannelResDTO> {
+    return this.httpClient.post(
+      [
+        environment.API_HOST,
+        environment.EV_PATH,
+        environment.INITIALIZE_PATH,
+      ].join('/'),
+      { peerId }
+    );
+  }
+
+  // STEP 3: Sender register a file to send to receiver
+  registerFile(channelId: string, totalPart: number): Observable<FilePart> {
+    return this.httpClient.post(
+      [
+        environment.API_HOST,
+        environment.EV_PATH,
+        environment.Channel_PATH,
+        channelId,
+      ].join('/'),
+      { totalPart: totalPart }
+    );
+  }
+
+  /**
+   * STEP 4: Receiver ask to take a part from signaling channel
+   * @param ChannelId
+   * @returns
+   */
+  getNextPartInformation(
+    ChannelId: string,
+    fileId: number = null
+  ): Observable<FilePart> {
+    if (fileId) {
+      return this.httpClient.get(
+        [
+          environment.API_HOST,
+          environment.EV_PATH,
+          environment.Channel_PATH,
+          ChannelId,
+        ].join('/'),
+        { params: { fileId: fileId } }
+      );
+    }
+    return this.httpClient.get(
+      [
+        environment.API_HOST,
+        environment.EV_PATH,
+        environment.Channel_PATH,
+        ChannelId,
+      ].join('/')
+    );
+  }
+
+  /**
+   * STEP 5: Update download part status
+   * @param ChannelId
+   * @returns
+   */
+  gettingPartComplete(
+    ChannelId: string,
+    fileId: number = null,
+    partIndex: number,
+    totalPart: number
+  ): Observable<FilePart> {
+    return this.httpClient.put(
+      [
+        environment.API_HOST,
+        environment.EV_PATH,
+        environment.Channel_PATH,
+        ChannelId,
+      ].join('/'),
+      { fileId: Number(fileId), partIndex, totalPart },
+      { params: { fileId: fileId } }
+    );
+  }
+
+  /**
+   * STEP 6: Update peer status
+   * @param ChannelId
+   * @returns
+   */
+  updatePeerStatus(
+    peerId: number,
+    state: EPeerState,
+    fileId: number = null
+  ): Observable<FilePart> {
+    return this.httpClient.put(
+      [
+        environment.API_HOST,
+        environment.EV_PATH,
+        environment.PEER_PATH,
+        peerId,
+      ].join('/'),
+      { peerId: Number(peerId), state, fileId: fileId ? Number(fileId) : null }
+    );
+  }
+
+  /**
+   * STEP 7: Finish donwload file part
+   * @param ChannelId
+   * @returns
+   */
+  downloadFilePartComplete(
+    channelId: string,
+    fileId: number,
+    totalPart: number,
+    index: number
+  ): Observable<FilePart> {
+    return this.httpClient.put(
+      [
+        environment.API_HOST,
+        environment.EV_PATH,
+        environment.Channel_PATH,
+        channelId,
+      ].join('/'),
+      { totalPart, index, fileId: Number(fileId) }
+    );
   }
 }

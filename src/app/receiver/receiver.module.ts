@@ -4,17 +4,16 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { NgxsModule } from '@ngxs/store';
+import { FileNamePipe } from '@shared/file-name.pipe';
+import { SharedAppModule } from '@shared/shared-app.module';
 import { TuiButtonModule, TuiTextfieldControllerModule } from '@taiga-ui/core';
 import {
   TuiInputModule,
   TuiStepperComponent,
-  TuiStepperModule,
+  TuiStepperModule
 } from '@taiga-ui/kit';
 import { ProgressBarModule } from 'angular-progress-bar';
 import { NgxFileDropModule } from 'ngx-file-drop';
-import { SignalingReceiver } from '../services/signaling-receiver.service';
-import { FileNamePipe } from '../shared/file-name.pipe';
-import { SharedAppModule } from '../shared/shared-app.module';
 // This Module's Components
 import { ReceiverComponent } from './receiver.component';
 import { ReceiverState } from './receiver.state';
@@ -39,7 +38,11 @@ import { ReceiverState } from './receiver.state';
     TuiTextfieldControllerModule,
     SharedAppModule,
   ],
-  providers: [AsyncPipe, TuiStepperComponent, SignalingReceiver, FileNamePipe],
+  providers: [
+    AsyncPipe,
+    TuiStepperComponent,
+    FileNamePipe,
+  ],
   declarations: [ReceiverComponent],
   exports: [ReceiverComponent],
 })

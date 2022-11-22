@@ -2,13 +2,14 @@ import { InjectableRxStompConfig } from '@stomp/ng2-stompjs';
 
 export const RTCRxStompConfig: InjectableRxStompConfig = {
   // Which server?
-  brokerURL: 'ws://activemq.mindstone.cc?maximumConnections=1000&wireFormat.maxFrameSize=104857600',
+  brokerURL:
+    'wss://activemq.mindstone.cc?maximumConnections=1000&wireFormat.maxFrameSize=104857600',
 
   // Headers
   // Typical keys: login, passcode, host
   connectHeaders: {
-    login: null,
-    passcode: null,
+    login: 'client',
+    passcode: '19c124204',
   },
 
   // How often to heartbeat?
@@ -19,13 +20,12 @@ export const RTCRxStompConfig: InjectableRxStompConfig = {
   // Wait in milliseconds before attempting auto reconnect
   // Set to 0 to disable
   // Typical value 500 (500 milli seconds)
-  reconnectDelay: 200,
+  reconnectDelay: 1000,
 
   // Will log diagnostics on console
   // It can be quite verbose, not recommended in production
   // Skip this key to stop logging to console
   debug: (msg: string): void => {
-    console.log(msg);
-    // console.log(new Date(), msg);
+    // console.log(msg);
   },
 };

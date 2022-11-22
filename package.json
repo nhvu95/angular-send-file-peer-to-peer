@@ -12,7 +12,7 @@
     "auto": "npm run build && echo f2f.nhvu95.com > ./dist/webrtc/CNAME && npm run deploy",
     "docker-build": "docker build -t self-host-image .",
     "docker-run": "docker run --name self-host-container -d -v ${PWD}/certbot/nhvu95.com:/etc/nginx/cert -p 80:80 -p 443:443 self-host-image",
-	"host": "npm run build && echo f2f.nhvu95.com > ./dist/webrtc/CNAME && cd .. && npm run docker-build && npm run docker-run"
+    "host": "npm run build && echo f2f.nhvu95.com > ./dist/webrtc/CNAME && cd .. && npm run docker-build && npm run docker-run"
   },
   "private": true,
   "dependencies": {
@@ -33,6 +33,8 @@
     "@taiga-ui/core": "^2.9.1",
     "@taiga-ui/icons": "^2.9.1",
     "@taiga-ui/kit": "^2.9.1",
+    "@types/lodash": "^4.14.189",
+    "@w11k/ngx-componentdestroyed": "^5.0.2",
     "angular-progress-bar": "^1.0.11",
     "file-saver": "^2.0.5",
     "gh-pages": "^3.2.3",
@@ -44,6 +46,7 @@
     "rxjs": "~6.5.5",
     "sass": "^1.32.13",
     "sass-loader": "^10.1.1",
+    "streamsaver": "^2.0.6",
     "tslib": "^2.0.0",
     "uuid": "^8.3.2",
     "zone.js": "~0.11.4"

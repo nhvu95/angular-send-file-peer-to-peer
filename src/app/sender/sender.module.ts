@@ -4,20 +4,20 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { NgxsModule } from '@ngxs/store';
+import { FileNamePipe } from '@shared/file-name.pipe';
+import { SharedAppModule } from '@shared/shared-app.module';
 import {
   TuiButtonModule,
   TuiDialogModule,
-  TuiRootModule,
+  TuiRootModule
 } from '@taiga-ui/core';
 import {
   TuiMarkerIconModule,
   TuiStepperComponent,
-  TuiStepperModule,
+  TuiStepperModule
 } from '@taiga-ui/kit';
 import { ProgressBarModule } from 'angular-progress-bar';
 import { NgxFileDropModule } from 'ngx-file-drop';
-import { FileNamePipe } from '../shared/file-name.pipe';
-import { SharedAppModule } from '../shared/shared-app.module';
 // This Module's Components
 import { SenderComponent } from './sender.component';
 import { SenderState } from './sender.state';
@@ -43,7 +43,11 @@ import { SenderState } from './sender.state';
     ProgressBarModule,
     SharedAppModule,
   ],
-  providers: [AsyncPipe, TuiStepperComponent, FileNamePipe],
+  providers: [
+    AsyncPipe,
+    TuiStepperComponent,
+    FileNamePipe
+  ],
   declarations: [SenderComponent],
   exports: [],
 })

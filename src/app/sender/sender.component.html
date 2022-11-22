@@ -23,6 +23,7 @@
           type="button"
           class="ei2_25_1_15"
           (click)="openFileSelector()"
+          [disabled]="browseDisable"
         >
           Browse
         </button>
@@ -127,7 +128,7 @@
     class="block"
     tuiStep
     [state]="steps[0].state"
-    (click)="initChanel()"
+    (click)="initChannel()"
     [disabled]="steps[0].disable"
     icon="tuiIconTimeLarge"
   >
@@ -138,7 +139,6 @@
     class="block"
     tuiStep
     [state]="steps[1].state"
-    (click)="startSeeding()"
     [disabled]="steps[1].disable"
     icon="tuiIconTimeLarge"
   >

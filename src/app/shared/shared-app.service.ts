@@ -1,30 +1,29 @@
 import { Inject, Injectable, Injector } from '@angular/core';
-import { Router } from '@angular/router';
+import { YesNoDialogComponent } from '@shared/yes-no-dialog/yes-no-dialog.component';
 import {
   TuiDialogContext,
   TuiDialogService,
   TuiNotification,
   TuiNotificationsService,
 } from '@taiga-ui/core';
-import { PolymorpheusTemplate } from '@tinkoff/ng-polymorpheus';
-import { switchMap, takeUntil } from 'rxjs/operators';
-import { YesNoDialogComponent } from '../shared/yes-no-dialog/yes-no-dialog.component';
-import { PolymorpheusComponent } from '@tinkoff/ng-polymorpheus';
+import {
+  PolymorpheusComponent,
+  PolymorpheusTemplate,
+} from '@tinkoff/ng-polymorpheus';
 
 @Injectable({
   providedIn: 'root',
 })
-export class CommonService {
+export class SharedAppService {
   constructor(
     @Inject(TuiDialogService) private readonly dialogService: TuiDialogService,
     @Inject(TuiNotificationsService)
     private readonly notificationsService: TuiNotificationsService,
-    @Inject(Injector) private injector: Injector,
-    private router: Router
+    @Inject(Injector) private injector: Injector
   ) {}
 
   showDialog(
-    message: string,
+    message: string = 'If something goes wrong, it means I forgot to pay a bill. Sorry about that. LOL',
     header: string = 'Error',
     size: 's' | 'm' | 'l' = 's'
   ) {
@@ -40,11 +39,11 @@ export class CommonService {
     this.dialogService.open(content).subscribe();
   }
 
-  showNotify(content: String, heading: String) {
+  showNotify(content: String, heading: String, autoClose: number = -1) {
     this.notificationsService
       .show(content.valueOf(), {
         label: heading.valueOf(),
-        autoClose: false,
+        autoClose: autoClose < 0 ? false : autoClose,
         hasCloseButton: true,
       })
       .subscribe();
@@ -57,7 +56,7 @@ export class CommonService {
         data: messageContent,
         label: 'Attention',
         status: TuiNotification.Warning,
-        autoClose: false
+        autoClose: false,
       }
     );
   }
