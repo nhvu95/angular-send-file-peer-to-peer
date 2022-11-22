@@ -1,0 +1,42 @@
+version: '3.8'
+name: f2f-backend
+services:
+    db:
+        image: postgres
+        restart: always
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+            - '5432:5432'
+        restart: unless-stopped
+    pgadmin:
+        container_name: pgadmin_container
+        image: dpage/pgadmin4
+        environment:
+          PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-nhvu95@gmail.com}
+          PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+          PGADMIN_CONFIG_SERVER_MODE: 'False'
+        ports:
+            - '5232:80'
+        restart: unless-stopped
+    activemq:
+        restart: unless-stopped
+        ports:
+            - '8161:8161'
+            - '5672:5672'
+        volumes:
+            - 'E:\Angular\f2f-micro-services\activemq\conf:/opt/activemq/conf'
+            - 'E:\Angular\f2f-micro-services\activemq\data:/opt/activemq/data'
+        environment:
+            - ACTIVEMQ_ENCRYPTION_PASSWORD=activemq
+        image: rmohr/activemq
+    f2f-backend: 
+        image: f2f-backend:latest
+        restart: unless-stopped
+        ports:
+            - '5231:5231'
+networks:
+    default:
+      name: tunnel
+      external: true

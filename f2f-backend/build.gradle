@@ -1,0 +1,42 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '2.7.5'
+	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+}
+
+group = 'com.f2f'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	// https://mvnrepository.com/artifact/org.hibernate/hibernate-core
+	// implementation group: 'org.hibernate', name: 'hibernate-core', version: '5.6.10.Final'
+	// implementation group: 'org.hibernate', name: 'hibernate-entitymanager', version: '5.3.7.Final'
+    implementation "org.mindrot:jbcrypt:0.4"
+	
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	compileOnly 'org.projectlombok:lombok'
+	runtimeOnly 'org.postgresql:postgresql'
+	annotationProcessor 'org.projectlombok:lombok'
+	// providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+bootJar {
+   archiveName = 'f2f-backend.jar'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
