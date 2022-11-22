@@ -11,7 +11,7 @@ Demo: https://f2f.nhvu95.com
 
 :point_right: This is a project which I use to beautify my CV, so please give me a :star: if you think it useful.
 
-The more detailed README.MD files are inside the children's folder. You can ask me if you need any help  through
+The more detailed README.MD files are inside the subfolder. You can contact me if you need any help, I am really glad.
 
 :email: email: nhvu.95@gmail.com  
 :earth_asia: website: https://nhvu95.com/
