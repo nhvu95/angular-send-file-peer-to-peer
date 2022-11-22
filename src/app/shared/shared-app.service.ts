@@ -35,10 +35,20 @@ export class SharedAppService {
     });
   }
 
+  /**
+   * An elegant way to show a dialog
+   * @param content 
+   */
   showDialogWithTemplate(content: PolymorpheusTemplate<TuiDialogContext>) {
     this.dialogService.open(content).subscribe();
   }
 
+  /**
+   * Show notify
+   * @param content 
+   * @param heading 
+   * @param autoClose 
+   */
   showNotify(content: String, heading: String, autoClose: number = -1) {
     this.notificationsService
       .show(content.valueOf(), {
@@ -49,7 +59,12 @@ export class SharedAppService {
       .subscribe();
   }
 
-  showConfirm(messageContent: String) {
+  /**
+   * Show notify ask user confirm
+   * @param messageContent 
+   * @returns 
+   */
+  showNotifyAskUserConfirm(messageContent: String) {
     return this.notificationsService.show<boolean, String>(
       new PolymorpheusComponent(YesNoDialogComponent, this.injector),
       {

@@ -22,7 +22,7 @@ import {
   CannotConnectToPeer,
   CloseSenderDataChannelAction,
   DeleteFilesAction,
-  InitializeChannelAction,
+  InitializeSignalingChannelAction,
   SendDataAction,
   SenderResetStateToDefaultAction,
   UpdateDataChannelStateAction,
@@ -94,10 +94,10 @@ export class SenderState implements NgxsOnInit {
    * @param action
    */
   @Debugger
-  @Action(InitializeChannelAction)
-  initializeChannel(
+  @Action(InitializeSignalingChannelAction)
+  initializeSingalingChannel(
     ctx: StateContext<SenderStateModel>,
-    action: InitializeChannelAction
+    action: InitializeSignalingChannelAction
   ) {
     const state = ctx.getState();
     const peerId = this.store.selectSnapshot(AppSelectors.getPeerId);

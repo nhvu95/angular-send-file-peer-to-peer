@@ -1,7 +1,7 @@
 import { EPeerState, IFilePartSending } from '@shared/app.model';
 
-export class InitializeChannelAction {
-  static readonly type = '[SENDER] InitializeChannelAction';
+export class InitializeSignalingChannelAction {
+  static readonly type = '[SENDER] InitializeSignalingChannelAction';
   constructor() {}
 }
 

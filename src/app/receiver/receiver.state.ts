@@ -84,7 +84,7 @@ export class ReceiverState {
   ) {
     if (action.step == 3) {
       this.commonService
-        .showConfirm('Download complete!')
+        .showNotifyAskUserConfirm('Download complete!')
         .pipe(
           tap((res) => {
             action.step = -1;

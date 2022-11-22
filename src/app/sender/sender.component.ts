@@ -25,7 +25,7 @@ import {
   AppendFilesAction,
   CloseSenderDataChannelAction,
   DeleteFilesAction,
-  InitializeChannelAction,
+  InitializeSignalingChannelAction,
   SendDataAction,
   SenderResetStateToDefaultAction
 } from './sender.action';
@@ -92,7 +92,7 @@ export class SenderComponent
       .subscribe((done) => {
         if (done) {
           this.commonService
-            .showConfirm(
+            .showNotifyAskUserConfirm(
               'Your friends were downloading completely! You can close the tab now!'
             )
             .subscribe((res) => {
@@ -121,7 +121,7 @@ export class SenderComponent
         'Initialize Channel',
         3000
       );
-      return this.store.dispatch(new InitializeChannelAction());
+      return this.store.dispatch(new InitializeSignalingChannelAction());
     } else {
       this.stepper.activeItemIndex = -1;
       return this.commonService
