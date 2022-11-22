@@ -12,7 +12,7 @@
     "auto": "npm run build && echo f2f.nhvu95.com > ./dist/webrtc/CNAME && npm run deploy",
     "docker-build": "docker build -t self-host-image .",
     "docker-run": "docker run --name self-host-container -d -v ${PWD}/certbot/nhvu95.com:/etc/nginx/cert -p 80:80 -p 443:443 self-host-image",
-    "host": "npm run build && echo f2f.nhvu95.com > ./dist/webrtc/CNAME && cd .. && npm run docker-build && npm run docker-run"
+    "host": "npm run build && echo f2f.nhvu95.com > ./dist/webrtc/CNAME && cd .. && cd .. && npm run docker-build && npm run docker-run"
   },
   "private": true,
   "dependencies": {

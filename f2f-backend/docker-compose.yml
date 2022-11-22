@@ -26,8 +26,8 @@ services:
             - '8161:8161'
             - '5672:5672'
         volumes:
-            - 'E:\Angular\f2f-micro-services\activemq\conf:/opt/activemq/conf'
-            - 'E:\Angular\f2f-micro-services\activemq\data:/opt/activemq/data'
+            - './microservices/activemq/conf:/opt/activemq/conf'
+            - './microservices/activemq/data:/opt/activemq/data'
         environment:
             - ACTIVEMQ_ENCRYPTION_PASSWORD=activemq
         image: rmohr/activemq

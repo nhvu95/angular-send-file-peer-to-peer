@@ -9,7 +9,7 @@ export const RTCRxStompConfig: InjectableRxStompConfig = {
   // Typical keys: login, passcode, host
   connectHeaders: {
     login: 'client',
-    passcode: '19c124204',
+    passcode: 'yourpassword',
   },
 
   // How often to heartbeat?

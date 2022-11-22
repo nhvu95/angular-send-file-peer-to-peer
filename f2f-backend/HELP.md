@@ -23,8 +23,23 @@ The following guides illustrate how to use some features concretely:
 ##### Build docker image
 `docker build -t f2f-backend .`
 
+##### Create docker network name tunnel
+`docker network create tunnel`
+
 ##### Build docker container
 `docker compose up -d`
+
+#### Config activemq password
+Then open activemq terminal in docker
+
+`bin/activemq encrypt --password activemq --input yourpassword`
+
+Copy Encrypted password and replace in client password of .\microservices\activemq\credentials-enc.properties
+
+then restart activemq in docker
+
+Please careful that we only config the password one time
+
 
 ### Additional Links
 These additional references should also help you:
