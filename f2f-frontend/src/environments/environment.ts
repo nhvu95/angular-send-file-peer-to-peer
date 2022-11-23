@@ -10,7 +10,8 @@ export const environment: IEnvironment = {
   API_HOST: 'http://localhost:8080',
   // API_HOST: 'https://f2f-api.mindstone.cc',
   EV_PATH: 'v1',
-  Channel_PATH: 'channel',
+  CHANNEL_PATH: 'channel',
+  FILE_PATH: 'file',
   INITIALIZE_PATH: 'channel/initialize',
   PEER_PATH: 'peer'
 };

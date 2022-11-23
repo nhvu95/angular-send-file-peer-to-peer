@@ -246,8 +246,9 @@ export class SignalingService {
       [
         environment.API_HOST,
         environment.EV_PATH,
-        environment.Channel_PATH,
+        environment.CHANNEL_PATH,
         channelId,
+        environment.FILE_PATH,
       ].join('/'),
       { totalPart: totalPart }
     );
@@ -255,11 +256,28 @@ export class SignalingService {
 
   /**
    * STEP 4: Receiver ask to take a part from signaling channel
-   * @param ChannelId
+   * @param channelId
+   * @returns
+   */
+  getChannelOwner(channelId: string): Observable<number> {
+    return this.httpClient.get<number>(
+      [
+        environment.API_HOST,
+        environment.EV_PATH,
+        environment.CHANNEL_PATH,
+        channelId,
+        "owner"
+      ].join('/')
+    );
+  }
+
+  /**
+   * STEP 4: Receiver ask to take a part from signaling channel
+   * @param channelId
    * @returns
    */
   getNextPartInformation(
-    ChannelId: string,
+    channelId: string,
     fileId: number = null
   ): Observable<FilePart> {
     if (fileId) {
@@ -267,8 +285,9 @@ export class SignalingService {
         [
           environment.API_HOST,
           environment.EV_PATH,
-          environment.Channel_PATH,
-          ChannelId,
+          environment.CHANNEL_PATH,
+          channelId,
+          environment.FILE_PATH,
         ].join('/'),
         { params: { fileId: fileId } }
       );
@@ -277,19 +296,20 @@ export class SignalingService {
       [
         environment.API_HOST,
         environment.EV_PATH,
-        environment.Channel_PATH,
-        ChannelId,
+        environment.CHANNEL_PATH,
+        channelId,
+        environment.FILE_PATH,
       ].join('/')
     );
   }
 
   /**
    * STEP 5: Update download part status
-   * @param ChannelId
+   * @param channelId
    * @returns
    */
   gettingPartComplete(
-    ChannelId: string,
+    channelId: string,
     fileId: number = null,
     partIndex: number,
     totalPart: number
@@ -298,17 +318,17 @@ export class SignalingService {
       [
         environment.API_HOST,
         environment.EV_PATH,
-        environment.Channel_PATH,
-        ChannelId,
+        environment.CHANNEL_PATH,
+        channelId,
+        environment.FILE_PATH,
       ].join('/'),
-      { fileId: Number(fileId), partIndex, totalPart },
-      { params: { fileId: fileId } }
+      { fileId: Number(fileId), index: partIndex, totalPart },
     );
   }
 
   /**
    * STEP 6: Update peer status
-   * @param ChannelId
+   * @param channelId
    * @returns
    */
   updatePeerStatus(
@@ -324,28 +344,6 @@ export class SignalingService {
         peerId,
       ].join('/'),
       { peerId: Number(peerId), state, fileId: fileId ? Number(fileId) : null }
-    );
-  }
-
-  /**
-   * STEP 7: Finish donwload file part
-   * @param ChannelId
-   * @returns
-   */
-  downloadFilePartComplete(
-    channelId: string,
-    fileId: number,
-    totalPart: number,
-    index: number
-  ): Observable<FilePart> {
-    return this.httpClient.put(
-      [
-        environment.API_HOST,
-        environment.EV_PATH,
-        environment.Channel_PATH,
-        channelId,
-      ].join('/'),
-      { totalPart, index, fileId: Number(fileId) }
     );
   }
 }

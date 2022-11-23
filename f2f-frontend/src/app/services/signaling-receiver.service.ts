@@ -282,15 +282,15 @@ export class SignalingReceiverService extends SignalingService {
    * @param fileId
    * @param partIndex
    */
-  sendGetListFilesMsg() {
+  sendGetListFilesMsg(ownerId = this.connectingPeerId) {
     const accessKey = this.store.selectSnapshot(AppSelectors.getAccessKey);
     const message: ISignalingMessage = {
       from: this.peerId,
-      to: this.connectingPeerId,
+      to: ownerId,
       content: 'list-files',
       data: accessKey,
     };
-    this.rxStompService.publish(message, this.connectingPeerId);
+    this.rxStompService.publish(message, ownerId);
   }
 
   /**

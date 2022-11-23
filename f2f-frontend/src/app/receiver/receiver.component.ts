@@ -23,7 +23,7 @@ import { Observable } from 'rxjs';
 import { concatMap, debounceTime, tap } from 'rxjs/operators';
 import {
   CloseReceiverDataChannelAction,
-  GetListFileAction,
+  GetChannelOwnerAndListFileAction,
   ReceiverResetStateToDefaultAction,
   SetCurrentStepAction,
   StartLeechingAction
@@ -43,7 +43,7 @@ export class ReceiverComponent
   public files: NgxFileDropEntry[] = [];
   showGuide: boolean = false;
 
-  @Select(AppSelectors.getChannelId) ChannelId$: Observable<string>;
+  @Select(AppSelectors.getChannelId) channelId$: Observable<string>;
   @Select(AppSelectors.getAccessKey) accessKey$: Observable<string>;
   @Select(ReceiverSelectors.localFiles) files$: Observable<IFilePartSending[]>;
   @Select(ReceiverSelectors.steps) steps$: Observable<any>;
@@ -99,7 +99,7 @@ export class ReceiverComponent
         untilComponentDestroyed(this),
         tap((res) => {
           if (res) {
-            this.store.dispatch(new GetListFileAction());
+            this.store.dispatch(new GetChannelOwnerAndListFileAction());
           }
         }),
         debounceTime(1000)

@@ -14,7 +14,7 @@ import {
   AddNewFileInfoAction,
   CloseReceiverDataChannelAction,
   DownloadFilePartCompleteAction,
-  GetListFileAction,
+  GetChannelOwnerAndListFileAction,
   ReceiverResetStateToDefaultAction,
   SetCurrentStepAction,
   StartLeechingAction,
@@ -136,13 +136,16 @@ export class ReceiverState {
   }
 
   /**
-   * Start getting file (leeching file)
+   * Get Channel Owner and get list of file
    * @param ctx
    */
   @Debugger
-  @Action(GetListFileAction)
-  getListFile(ctx: StateContext<ReceiverStateModel>) {
-    this.signalingService.sendGetListFilesMsg();
+  @Action(GetChannelOwnerAndListFileAction)
+  getChannelOwnerAndListFile(ctx: StateContext<ReceiverStateModel>) {
+    const channelId = this.store.selectSnapshot(AppSelectors.getChannelId);
+    this.signalingService.getChannelOwner(channelId).subscribe(ownerId => {
+      this.signalingService.sendGetListFilesMsg(ownerId);
+    });
   }
 
   /**
@@ -261,11 +264,11 @@ export class ReceiverState {
     const channelId = this.store.selectSnapshot(AppSelectors.getChannelId);
     const file = state.localFiles.find((file) => file.fileId === action.fileId);
     this.signalingService
-      .downloadFilePartComplete(
+      .gettingPartComplete(
         channelId,
         file.fileId,
-        file.totalPart,
-        action.fileIndex
+        action.fileIndex,
+        file.totalPart
       )
       .subscribe((res) => {
         ctx.dispatch(new TryToGettingFile());

@@ -21,6 +21,9 @@ The following guides illustrate how to use some features concretely:
 ### Build JAR
 `gradlew build -x test`
 
+### Build docker image
+`docker build -t f2f-backend .`
+
 ### Create docker network name tunnel
 `docker network create tunnel`
 

@@ -97,6 +97,17 @@ public class SignalingService {
 	}
 
 	/**
+	 * STEP 2.5. Get Channel information
+	 * 
+	 * @param req
+	 * @return
+	 */
+	public SignalingChannel getChannelInformation(Long channelId) {
+		Optional<SignalingChannel> newChannel = this.signalingRepo.findById(channelId);
+		return newChannel.orElse(null);
+	}
+	
+	/**
 	 * STEP 3. One of Peers(Browser) register a shared file This file and all it
 	 * parts will be store as a record to the database
 	 * 

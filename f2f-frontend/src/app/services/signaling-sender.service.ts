@@ -199,7 +199,7 @@ export class SignalingSenderService extends SignalingService {
       const message: ISignalingMessage = {
         from: this.peerId,
         to: this.connectingPeerId,
-        content: 'webrtc-offer',
+        content: 'list-files',
         data: files,
       };
       this.rxStompService.publish(message, senderId);

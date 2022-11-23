@@ -10,11 +10,10 @@ export class SetCurrentStepAction {
   constructor(public step: number) {}
 }
 
-export class GetListFileAction {
-  static readonly type = '[RECEIVER] GetListFileAction';
+export class GetChannelOwnerAndListFileAction {
+  static readonly type = '[RECEIVER] GetChannelOwnerAndListFileAction';
   constructor() {}
 }
-
 
 export class StartLeechingAction {
   static readonly type = '[RECEIVER] StartLeechingAction';

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.f2f.backend.ds.FilePart;
 import com.f2f.backend.ds.Peer;
+import com.f2f.backend.ds.SignalingChannel;
 import com.f2f.backend.dto.GetPartCompletedReq;
 import com.f2f.backend.dto.InitializeChannelReq;
 import com.f2f.backend.dto.InitializeChannelRes;
@@ -67,7 +68,19 @@ public class SignalingController {
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 
-	@PostMapping("/channel/{channelId}")
+	@GetMapping("/channel/{channelId}/owner")
+	@AuthorizationValid
+	public ResponseEntity<?> getChannelInfor(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
+			@PathVariable("channelId") String encryptedChannelId) {
+		Long channelId = this.peerDetails.getChannelId();
+		SignalingChannel channel = this.signalingServ.getChannelInformation(channelId);
+		if (channel == null) {
+			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+		}
+		return new ResponseEntity<>(channel.getSourceOwnerId(), HttpStatus.OK);
+	}
+
+	@PostMapping("/channel/{channelId}/file")
 	@AuthorizationValid
 	public ResponseEntity<?> registerFile(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
 			@PathVariable("channelId") String encryptedChannelId, @RequestBody RegisterFileReq req) {
@@ -77,22 +90,17 @@ public class SignalingController {
 		return new ResponseEntity<>(entityFile, HttpStatus.OK);
 	}
 
-	@GetMapping("/channel/{channelId}")
+	@GetMapping("/channel/{channelId}/file")
 	@AuthorizationValid
 	public ResponseEntity<?> getNextPart(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
-			@PathVariable("channelId") String encryptedChannelId, @RequestParam("fileId") Optional<Long> fileId, @RequestParam("type") Optional<Boolean> type) {
+			@PathVariable("channelId") String encryptedChannelId, @RequestParam("fileId") Optional<Long> fileId) {
 		Long peerId = this.peerDetails.getPeerId();
 		Long channelId = this.peerDetails.getChannelId();
-		if (type.orElse(false)) {
-			List<FilePart> parts = this.signalingServ.getAllPartOrigin(channelId);
-			return new ResponseEntity<>(parts, HttpStatus.OK);
-		} else {
-			FilePart nextPart = this.signalingServ.getPartForPeer(channelId, peerId, fileId.orElse(null));
-			return new ResponseEntity<>(nextPart, HttpStatus.OK);
-		}
+		FilePart nextPart = this.signalingServ.getPartForPeer(channelId, peerId, fileId.orElse(null));
+		return new ResponseEntity<>(nextPart, HttpStatus.OK);
 	}
-	
-	@PutMapping("/channel/{channelId}")
+
+	@PutMapping("/channel/{channelId}/file")
 	@AuthorizationValid
 	public ResponseEntity<?> getPartComplete(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
 			@PathVariable("channelId") String encryptedChannelId, @RequestBody GetPartCompletedReq req) {
