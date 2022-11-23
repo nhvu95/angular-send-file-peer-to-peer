@@ -1,0 +1,13 @@
+version: "2.10.2"
+services:
+  web-server:
+    build: .
+    ports:
+      - "80:80"
+      - "443:443"
+    container_name: f2f-frontend-container
+    image: "f2f-frontend-image"
+    restart: unless-stopped
+    volumes:
+      - './dist/webrtc:/usr/share/nginx/html/f2f.nhvu95.com'
+      - '../../certbot/nhvu95.com:/etc/nginx/cert'

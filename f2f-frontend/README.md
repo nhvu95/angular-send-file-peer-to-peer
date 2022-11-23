@@ -16,7 +16,12 @@ Run `ng generate component component-name` to generate a new component. You can 
 
 ## Build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+Run `npm run build` to build the project. The build artifacts will be stored in the `dist/webrtc` directory.
+
+## Docker host
+After run build, to host in docker
+
+`docker compose up -d`
 
 ## Running unit tests
 

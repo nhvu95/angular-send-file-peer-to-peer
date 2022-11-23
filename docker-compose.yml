@@ -1,9 +1,0 @@
-version: "2.10.2"
-services:
-  web-server:
-    build: .
-    ports:
-      - "80:80"
-      - "443:443"
-    container_name: self-host-container
-    image: "self-host-image"
