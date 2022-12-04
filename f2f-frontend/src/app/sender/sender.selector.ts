@@ -1,33 +1,33 @@
 import { Selector } from '@ngxs/store';
 import { SenderState, SenderStateModel } from './sender.state';
+import {IFilePartSending, ISteps} from '@shared/app.model';
 
 export class SenderSelectors {
   @Selector([SenderState])
-  static getAllStep(state: SenderStateModel) {
+  static getAllStep(state: SenderStateModel): ISteps[] {
     return state.steps;
   }
 
   @Selector([SenderState])
-  static getCurrentStep(state: SenderStateModel) {
+  static getCurrentStep(state: SenderStateModel): number {
     return state.currentStep;
   }
 
   @Selector([SenderState])
-  static getLocalFiles(state: SenderStateModel) {
-    return state.localFiles.filter((file) => file.fileId !== null);
+  static getLocalFiles(state: SenderStateModel): IFilePartSending[] {
+    return state.localFiles.filter((file: IFilePartSending) => file.fileId !== null);
   }
 
   @Selector([SenderState])
-  static getDataChannelState(state: SenderStateModel) {
+  static getDataChannelState(state: SenderStateModel): RTCDataChannelState {
     return state.dataChannelState;
   }
 
   @Selector([SenderState])
-  static isAllReceiverDone(state: SenderStateModel) {
+  static isAllReceiverDone(state: SenderStateModel): boolean {
     const peersCompleted = state.peersCompleted;
-    for (let peerId in peersCompleted) {
-      const files = peersCompleted[peerId];
-      if (files.length < state.localFiles.length) {
+    for (const peerId in peersCompleted) {
+      if (peersCompleted[peerId].length < state.localFiles.length) {
         return false;
       }
     }

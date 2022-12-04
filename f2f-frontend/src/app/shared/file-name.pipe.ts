@@ -4,8 +4,8 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'fileName',
 })
 export class FileNamePipe implements PipeTransform {
-  transform(value: String, ...args: unknown[]): String {
-    var res = '';
+  transform(value: string, ...args: unknown[]): string {
+    let res = '';
     if (
       /\.png$/.test(value.valueOf()) ||
       /\.jpg$/.test(value.valueOf()) ||

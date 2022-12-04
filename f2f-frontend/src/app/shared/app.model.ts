@@ -5,6 +5,7 @@ export enum RxStompState {
   CLOSED = 3,
 }
 
+// tslint:disable-next-line:class-name
 export interface _TInstanceState {
   connectingPeerId: number;
   localFiles: IFilePartSending[];
@@ -20,7 +21,7 @@ export interface IFilePartInformation {
   totalPart: number;
 }
 
-//
+// tslint:disable-next-line:class-name
 export interface _IFilePartSending extends IFilePartInformation {
   status: number;
   currentSize: number;
@@ -29,18 +30,21 @@ export interface _IFilePartSending extends IFilePartInformation {
 export interface IFilePartSending extends Partial<_IFilePartSending> {}
 
 // Initialize model ================
+// tslint:disable-next-line:class-name
 export interface _InitChannelResDTO {
   channelId: string;
   accessKey: string;
 }
 export interface IInitChannelResDTO extends Partial<_InitChannelResDTO> {}
 
+// tslint:disable-next-line:class-name
 export interface _InitChannelReqDTO {
   peerId: number;
 }
 export interface IInitChannelReqDTO extends Partial<_InitChannelReqDTO> {}
 // =================================
 
+// tslint:disable-next-line:class-name
 export interface _FilePart {
   ownerId: number;
   fileId: number;
@@ -56,17 +60,20 @@ export type Isingal =
   | 'webrtc-offer'
   | 'webrtc-answer'
   | 'webrtc-ice-candidate'
+  | 'start-sharing-ice'
   | 'webrtc-close-channel'
   | 'get-file-completed'
   | 'get-file-failed';
 
 /**
+ * Common signaling message model, which send between sender and receiver
  * @content : list-file            ==> @data = accessKey string
  * @content : offer                ==> @data = { fileId; partIndex }
  * @content : answer               ==> @data = RTCSessionDescriptionInit
  * @content : iceCandidate         ==> @data = RTCIceCandidateInit
  * @content : get-file-completed   ==> @data = { fileId; partIndex }
  */
+// tslint:disable-next-line:class-name
 export interface _ISignalingMessage {
   from: number;
   to: number;
@@ -96,13 +103,29 @@ export class SignalingMessage implements _ISignalingMessage {
   }
 }
 
+/**
+ * PreFlight message model to ask sender =
+ * Do you have this file id?
+ */
 export interface IPreFlightModel {
   fileId: number;
   partIndex: number;
 }
 
+/**
+ * State of a peer - a browser
+ */
 export enum EPeerState {
   IDLE = 'IDLE',
   TAKING = 'TAKING',
   SENDING = 'SENDING',
+}
+
+/**
+ * State of step which display on the screen
+ */
+export interface ISteps{
+  state: 'normal' | 'pass' | 'error';
+  disable: boolean;
+  name: string;
 }

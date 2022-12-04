@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Action, State, StateContext, Store } from '@ngxs/store';
 import { SignalingReceiverService } from '@services/signaling-receiver.service';
-import { EPeerState, _TInstanceState } from '@shared/app.model';
+import {EPeerState, _TInstanceState, ISteps, IFilePartSending} from '@shared/app.model';
 import { AppSelectors } from '@shared/app.selector';
 import { Debugger } from '@shared/debug.decorator';
 import { SharedAppService } from '@shared/shared-app.service';
@@ -34,14 +34,11 @@ const defaultState: ReceiverStateModel = {
     { state: 'normal', disable: true, name: 'Leeching' },
   ],
   currentStep: -1,
-}
+};
 
+// tslint:disable-next-line:class-name
 interface _ReceiverStateModel extends Partial<_TInstanceState> {
-  steps: {
-    state: 'normal' | 'pass' | 'error';
-    disable: boolean;
-    name: string;
-  }[];
+  steps: ISteps[];
   currentStep: number;
 }
 
@@ -60,29 +57,38 @@ export class ReceiverState {
     private store: Store
   ) {}
 
-  ngxsOnInit(ctx?: StateContext<ReceiverStateModel>) {}
+  /**
+   * On state management initialize
+   * @param ctx state context
+   */
+  ngxsOnInit(ctx?: StateContext<ReceiverStateModel>): void{}
 
+  /**
+   * Reset state to default
+   * @param ctx state context
+   * @param action object instance of ReceiverResetStateToDefaultAction
+   */
   @Debugger
   @Action(ReceiverResetStateToDefaultAction)
   resetToDefault(
     ctx: StateContext<ReceiverStateModel>,
     action: ReceiverResetStateToDefaultAction
-  ) {
+  ): void {
     ctx.setState(cloneDeep(defaultState));
   }
 
   /**
    * @UI set current step
-   * @param ctx
-   * @param action
+   * @param ctx state context
+   * @param action object instance of SetCurrentStepAction
    */
   @Debugger
   @Action(SetCurrentStepAction)
   setCurrentStep(
     ctx: StateContext<ReceiverStateModel>,
     action: SetCurrentStepAction
-  ) {
-    if (action.step == 3) {
+  ): void {
+    if (action.step === 3) {
       this.commonService
         .showNotifyAskUserConfirm('Download complete!')
         .pipe(
@@ -92,7 +98,7 @@ export class ReceiverState {
           takeUntil(this.router.events)
         )
         .subscribe((res) => {
-          this.router.navigateByUrl('/').then((res) => {
+          this.router.navigateByUrl('/').then((_) => {
             window.location.reload();
           });
         });
@@ -116,12 +122,17 @@ export class ReceiverState {
     // Get next peer
   }
 
+  /**
+   * Add files into list
+   * @param ctx state context
+   * @param action object instance of AddNewFileInfoAction
+   */
   @Debugger
   @Action(AddNewFileInfoAction)
   addFiles(
     ctx: StateContext<ReceiverStateModel>,
     action: AddNewFileInfoAction
-  ) {
+  ): void {
     ctx.setState(
       produce((draft) => {
         if (
@@ -137,11 +148,11 @@ export class ReceiverState {
 
   /**
    * Get Channel Owner and get list of file
-   * @param ctx
+   * @param ctx state context
    */
   @Debugger
   @Action(GetChannelOwnerAndListFileAction)
-  getChannelOwnerAndListFile(ctx: StateContext<ReceiverStateModel>) {
+  getChannelOwnerAndListFile(ctx: StateContext<ReceiverStateModel>): void {
     const channelId = this.store.selectSnapshot(AppSelectors.getChannelId);
     this.signalingService.getChannelOwner(channelId).subscribe(ownerId => {
       this.signalingService.sendGetListFilesMsg(ownerId);
@@ -150,22 +161,22 @@ export class ReceiverState {
 
   /**
    * Start getting file (leeching file)
-   * @param ctx
+   * @param ctx state context
    */
   @Debugger
   @Action(StartLeechingAction)
-  startLeeching(ctx: StateContext<ReceiverStateModel>) {
+  startLeeching(ctx: StateContext<ReceiverStateModel>): void {
     this.setCurrentStep(ctx, new SetCurrentStepAction(1));
     ctx.dispatch(new TryToGettingFile());
   }
 
   /**
-   * Try to getting a file
-   * @param ctx
+   * Try to get a file
+   * @param ctx state context
    */
   @Debugger
   @Action(TryToGettingFile)
-  tryToGettingFileRegistedInChannel(ctx: StateContext<ReceiverStateModel>) {
+  tryToGettingFileRegistedInChannel(ctx: StateContext<ReceiverStateModel>): void {
     const self = this;
     const channelId = this.store.selectSnapshot(AppSelectors.getChannelId);
     // Step 1
@@ -187,7 +198,6 @@ export class ReceiverState {
         }
       },
       (err: HttpErrorResponse) => {
-        console.log(err);
         this.store.dispatch(new SetCurrentStepAction(3));
       }
     );
@@ -195,15 +205,15 @@ export class ReceiverState {
 
   /**
    * Update @UI file progress
-   * @param ctx
-   * @param action
+   * @param ctx state context
+   * @param action instance of UpdateFileReceiveProgressAction
    */
   @Debugger
   @Action(UpdateFileReceiveProgressAction)
   updateFileProgress(
     ctx: StateContext<ReceiverStateModel>,
     action: UpdateFileReceiveProgressAction
-  ) {
+  ): void {
     const state = ctx.getState();
     ctx.setState(
       produce((draft) => {
@@ -211,9 +221,10 @@ export class ReceiverState {
           (file) => file.fileId === action.fileId
         );
         if (idx >= 0) {
+          // tslint:disable-next-line:no-bitwise
           const currentSize: number = draft.localFiles[idx].currentSize | 0;
           draft.localFiles[idx].currentSize = currentSize + action.increaseSize;
-          //prettier-ignore
+          // prettier-ignore
           if ( draft.localFiles[idx].currentSize >= draft.localFiles[idx].fileSize ) {
             draft.localFiles[idx].currentSize = draft.localFiles[idx].fileSize;
           }
@@ -224,15 +235,15 @@ export class ReceiverState {
 
   /**
    * Update peer status to manages in server
-   * @param ctx
-   * @param action
+   * @param ctx state context
+   * @param action instance of UpdateReceiverStatusAction
    */
   @Debugger
   @Action(UpdateReceiverStatusAction)
   updatePeerStatus(
     ctx: StateContext<ReceiverStateModel>,
     action: UpdateReceiverStatusAction
-  ) {
+  ): void {
     const peerId = this.store.selectSnapshot(AppSelectors.getPeerId);
     this.signalingService
       .updatePeerStatus(peerId, action.peerState, action.fileId)
@@ -243,7 +254,7 @@ export class ReceiverState {
     );
     if (
       action.peerState === EPeerState.IDLE &&
-      completedFiles.length == ctx.getState().localFiles.length
+      completedFiles.length === ctx.getState().localFiles.length
     ) {
     }
   }
@@ -251,18 +262,18 @@ export class ReceiverState {
   /**
    * On download file part complete
    * @note : From update v20112022 we have only 1 part with index 0
-   * @param ctx
-   * @param action
+   * @param ctx state context
+   * @param action instance of DownloadFilePartCompleteAction
    */
   @Debugger
   @Action(DownloadFilePartCompleteAction)
   downloadFilePartComplete(
     ctx: StateContext<ReceiverStateModel>,
     action: DownloadFilePartCompleteAction
-  ) {
+  ): void {
     const state = ctx.getState();
     const channelId = this.store.selectSnapshot(AppSelectors.getChannelId);
-    const file = state.localFiles.find((file) => file.fileId === action.fileId);
+    const file = state.localFiles.find((mfile: IFilePartSending) => mfile.fileId === action.fileId);
     this.signalingService
       .gettingPartComplete(
         channelId,
@@ -271,21 +282,24 @@ export class ReceiverState {
         file.totalPart
       )
       .subscribe((res) => {
-        ctx.dispatch(new TryToGettingFile());
+        const doneFile = state.localFiles.find(mfile => mfile.currentSize !== mfile.fileSize);
+        if (doneFile) {
+          ctx.dispatch(new TryToGettingFile());
+        }
       });
   }
 
   /**
    * Close data channel
-   * @param ctx
-   * @param action
+   * @param ctx state context
+   * @param action instance of CloseReceiverDataChannelAction
    */
   @Debugger
   @Action(CloseReceiverDataChannelAction)
   closeDataChannelAction(
     ctx: StateContext<ReceiverStateModel>,
     action: CloseReceiverDataChannelAction
-  ) {
+  ): void {
     this.signalingService.closeDataChannels();
   }
 }

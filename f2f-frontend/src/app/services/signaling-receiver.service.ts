@@ -22,6 +22,7 @@ import { SignalingService } from './signaling.service';
 import streamSaver from 'streamsaver';
 import { UpdateDataChannelStateAction } from '../sender/sender.action';
 import { AppSelectors } from '@shared/app.selector';
+import { SignalingSenderService } from './signaling-sender.service';
 
 @Injectable({
   providedIn: 'any',
@@ -38,12 +39,13 @@ export class SignalingReceiverService extends SignalingService {
     protected readonly httpClient: HttpClient,
     protected store: Store,
     protected commonService: SharedAppService,
+    protected signalingSenderServ: SignalingSenderService,
     protected rxStompService: RxStompBridgeService
   ) {
     super(httpClient, store, commonService, rxStompService);
   }
 
-  createConnection() {
+  createConnection(): void {
     this.connection = new RTCPeerConnection(this.configuration);
 
     this.connection.addEventListener('icecandidate', async (event) => {
@@ -59,14 +61,12 @@ export class SignalingReceiverService extends SignalingService {
   }
 
   /** ======================================================================================================================
-   *                                                     Data Channel - Message Part                                                      
-   *  ======================================================================================================================/ 
-
-  /**
+   *                                                     Data Channel - Message Part
+   *  ======================================================================================================================/
    * Listen data channel call back;
-   * @param event
+   * @param event Initialize Event
    */
-  onDataChannelInitialize(event) {
+  onDataChannelInitialize(event): void {
     this.dataChannel = event.channel;
     this.dataChannel.binaryType = 'arraybuffer';
     this.dataChannel.onopen = this.onDataChannelStateChange.bind(this);
@@ -80,9 +80,9 @@ export class SignalingReceiverService extends SignalingService {
   /**
    * On receive message from Data channel
    * Using streamsaver.js
-   * @param event
+   * @param event Get MessageEvent
    */
-  onDataChannelGetMsg(event) {
+  onDataChannelGetMsg(event): void {
     this.receivedSize += event.data.byteLength;
     const file = this.crrFileInfo;
     console.log(`Received bits = ${event.data.byteLength}`);
@@ -129,7 +129,7 @@ export class SignalingReceiverService extends SignalingService {
   /**
    * On Data Channel State Change
    */
-  async onDataChannelStateChange() {
+  async onDataChannelStateChange(): Promise<void> {
     if (this.dataChannel) {
       const readyState = this.dataChannel.readyState;
       console.log(`Receive channel state is: ${readyState}`);
@@ -145,21 +145,26 @@ export class SignalingReceiverService extends SignalingService {
   /**
    * Close Data Channel
    */
-  closeDataChannels() {
-    if (this.dataChannel) {
-      this.dataChannel.close();
-      this.store.dispatch(new UpdateDataChannelStateAction('closed'));
-      this.dataChannel.removeAllListeners('open');
-      this.dataChannel.removeAllListeners('close');
-      this.dataChannel.removeAllListeners('message');
-      this.dataChannel = null;
-    }
-    this.saveStream?.close();
-    this.saveStream = null;
-    this.fileStream = null;
-    this.streamWriter = null;
+  closeDataChannels(): void {
+    try {
+      if (this.dataChannel) {
+        this.dataChannel.close();
+        this.store.dispatch(new UpdateDataChannelStateAction('closed'));
+        this.dataChannel.removeAllListeners('open');
+        this.dataChannel.removeAllListeners('close');
+        this.dataChannel.removeAllListeners('message');
+        this.dataChannel = null;
+      }
+      this.saveStream?.close();
+      this.saveStream = null;
+      this.fileStream = null;
+      this.streamWriter = null;
 
-    this.closeConnection();
+      this.closeConnection();
+    } catch (e) {
+      // In case we have error GC browser will automatically close it anyway
+    }
+
   }
 
   /**
@@ -176,27 +181,34 @@ export class SignalingReceiverService extends SignalingService {
   }
 
   /** ======================================================================================================================
-   *                                                     Signaling Channel - Message Part                                                      
-   *  ======================================================================================================================/ 
-
-  /**
+   *                                                     Signaling Channel - Message Part
+   *  ======================================================================================================================/
    * Signaling Channel message handler
    * Behavior when getting a message from the sender
-   * @param message
-   * @returns
+   * @param message Message Object
+   * @returns Promise<void>
    */
-  async messageHandler(message: ISignalingMessage) {
-    if (!message || this.isSenderScreen) return;
+  async messageHandler(message: ISignalingMessage): Promise<void> {
+    if (!message) { return; }
     console.log(
-      `GOT message ${message.content} from ${message.from}`,
-      message.content === 'webrtc-offer' ? message.info : message.data
+      `GOT message ${message?.content} from ${message?.from}`,
+      message,
+      `SENDER ${this.isSenderScreen}`
     );
     switch (message.content) {
+      case 'webrtc-answer': {
+        await this.signalingSenderServ.messageHandler(message);
+        break;
+      }
       case 'list-files': {
         const listFiles: IFilePartInformation[] = message.data;
         listFiles.forEach((filePart) => {
           this.store.dispatch(new AddNewFileInfoAction(filePart));
         });
+        break;
+      }
+      case 'start-sharing-ice': {
+        this.startSharingICECandidate();
         break;
       }
       case 'webrtc-ice-candidate': {
@@ -238,7 +250,7 @@ export class SignalingReceiverService extends SignalingService {
    * Send an Answer to the sender after getting an offer and file information was attached
    * @through Signaling Channel (ActiveMQ)
    */
-  async sendAnswerMsg() {
+  async sendAnswerMsg(): Promise<void> {
     const self = this;
     try {
       const answer = await this.connection.createAnswer();
@@ -252,9 +264,9 @@ export class SignalingReceiverService extends SignalingService {
       };
       this.rxStompService.publish(message, this.connectingPeerId);
 
-      this.startSharingICECandidate();
     } catch (e) {
       // Stupid way, but it's worked
+      console.log(e);
       setTimeout(async () => {
         await self.sendAnswerMsg();
       }, 1000);
@@ -263,15 +275,15 @@ export class SignalingReceiverService extends SignalingService {
 
   /**
    * Preflight message, ask sender about the file and part id wana take.
-   * @param fileId
-   * @param partIndex
+   * @param fileId file Id
+   * @param partIndex number
    */
-  sendPreflightMsg(fileId: number, partIndex: number = 0) {
+  sendPreflightMsg(fileId: number, partIndex: number = 0): void {
     const message: ISignalingMessage = {
       from: this.peerId,
       to: this.connectingPeerId,
       content: 'preflight',
-      data: <IPreFlightModel>{ fileId, partIndex },
+      data: { fileId, partIndex } as IPreFlightModel,
     };
     this.rxStompService.publish(message, this.connectingPeerId);
   }
@@ -279,10 +291,10 @@ export class SignalingReceiverService extends SignalingService {
   /**
    * Preflight message, ask sender about the files and parts id wana take.
    * @through Signaling Channel (ActiveMQ)
-   * @param fileId
-   * @param partIndex
+   * @param fileId file Id
+   * @param partIndex part index
    */
-  sendGetListFilesMsg(ownerId = this.connectingPeerId) {
+  sendGetListFilesMsg(ownerId = this.connectingPeerId): void {
     const accessKey = this.store.selectSnapshot(AppSelectors.getAccessKey);
     const message: ISignalingMessage = {
       from: this.peerId,
@@ -296,15 +308,15 @@ export class SignalingReceiverService extends SignalingService {
   /**
    * Inform the sender that receiver get file complete
    * @through Signaling Channel (ActiveMQ)
-   * @param file
+   * @param file fileId
    */
-  sendGettingFileCompletedMsg(file: IFilePartInformation) {
+  sendGettingFileCompletedMsg(file: IFilePartInformation): void {
     // Notice to sender that download complete
     const message: ISignalingMessage = {
       from: this.peerId,
       to: this.connectingPeerId,
       content: 'get-file-completed',
-      data: <IPreFlightModel>{ fileId: file.fileId, partIndex: file.index },
+      data: { fileId: file.fileId, partIndex: file.index } as IPreFlightModel,
     };
     this.rxStompService.publish(message, this.connectingPeerId);
   }

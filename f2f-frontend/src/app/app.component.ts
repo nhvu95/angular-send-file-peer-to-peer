@@ -32,7 +32,7 @@ export class AppComponent {
       map((e: NavigationEnd) => e.url === '/' || e.url === 'sender')
     );
 
-    this.router.routeReuseStrategy.shouldReuseRoute = function () {
+    this.router.routeReuseStrategy.shouldReuseRoute = () => {
       return false;
     };
 
@@ -49,12 +49,12 @@ export class AppComponent {
   /**
    * Copy data from state to buffer
    */
-  copyData() {
+  copyData(): void {
     this.notClickCopy = false;
-    const channelId = this.store.selectSnapshot<String>(
+    const channelId = this.store.selectSnapshot<string>(
       AppSelectors.getChannelId
     );
-    const accessKey = this.store.selectSnapshot<String>(
+    const accessKey = this.store.selectSnapshot<string>(
       AppSelectors.getAccessKey
     );
     this.ngxCopy.copy(channelId + '\n' + accessKey);
@@ -63,16 +63,16 @@ export class AppComponent {
   /**
    * Copy Link
    */
-  copyLink() {
+  copyLink(): void {
     this.notClickCopy = false;
     this.commonService.showNotify(
-      "Copy link success\nDon't close this tab until your friend downloads complete",
+      'Copy link success\nDon\'t close this tab until your friend downloads complete',
       'Attention'
     );
-    const channelId = this.store.selectSnapshot<String>(
+    const channelId = this.store.selectSnapshot<string>(
       AppSelectors.getChannelId
     );
-    const accessKey = this.store.selectSnapshot<String>(
+    const accessKey = this.store.selectSnapshot<string>(
       AppSelectors.getAccessKey
     );
 

@@ -12,13 +12,14 @@ import { map, share } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class RxStompBridgeService {
+  // tslint:disable-next-line:variable-name
   private _rxMessage$: Observable<IMessage>;
 
   constructor(private store: Store, private rxStompService: RxStompService) {
     this.store.select(AppSelectors.getPeerId).subscribe((peerId) => {
       if (peerId) {
         this._rxMessage$ = this.rxStompService
-          .watch(`PEERS.${peerId}`)
+          .watch(`PEERS.B${peerId}`)
           .pipe(share());
       }
     });
@@ -37,22 +38,22 @@ export class RxStompBridgeService {
   }
 
   /**
-   * Subcribe Signaling Channel (ActiveMQ)
-   * @returns 
+   * Subscribe Signaling Channel (ActiveMQ)
+   * @returns Observable<IMessage>
    */
   getRxMessage$(): Observable<IMessage> {
     return this._rxMessage$;
   }
 
   /**
-   * Send an message through Signaling Channel (ActiveMQ)
-   * @param message 
-   * @param connectingPeerId 
+   * Send a message through Signaling Channel (ActiveMQ)
+   * @param message The message
+   * @param connectingPeerId peerId of receiver
    */
-  publish(message: ISignalingMessage, connectingPeerId: number) {
-    console.log(`SEND message ${message.content} to ${message.to}`, message.data);
+  publish(message: ISignalingMessage, connectingPeerId: number): void {
+    console.log(`SEND message ${message.content} to ${message.to}`, message);
     this.rxStompService.publish({
-      destination: `PEERS.${connectingPeerId}`,
+      destination: `PEERS.B${connectingPeerId}`,
       body: JSON.stringify(message),
     });
   }

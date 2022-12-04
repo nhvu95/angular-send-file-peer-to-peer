@@ -32,7 +32,7 @@ import {
 import { SenderSelectors } from './sender.selector';
 
 @Component({
-  selector: 'sender',
+  selector: 'et-sender',
   templateUrl: 'sender.component.html',
   styleUrls: ['sender.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,8 +42,8 @@ export class SenderComponent
   implements AfterViewInit, OnDestroy
 {
   public files: NgxFileDropEntry[] = [];
-  showGuide: boolean = false;
-  browseDisable: boolean = false;
+  showGuide = false;
+  browseDisable = false;
   @Select(AppSelectors.getChannelId) channelId$: Observable<string>;
   @Select(AppSelectors.getAccessKey) accessKey$: Observable<string>;
   @Select(SenderSelectors.getLocalFiles) files$: Observable<IFilePartSending[]>;
@@ -58,12 +58,11 @@ export class SenderComponent
     private commonService: SharedAppService
   ) {
     super();
-    this.store.dispatch(new SenderResetStateToDefaultAction);
+    this.store.dispatch(new SenderResetStateToDefaultAction());
     this.store.dispatch(new AccessChannelAction(null, null));
-    
+
     this.listenEvent();
   }
-
   ngAfterViewInit(): void {
     this.store.dispatch(new SetScreenAction('sender'));
   }
@@ -76,12 +75,12 @@ export class SenderComponent
   /**
    * When data channel is ready, send the file
    */
-  listenEvent() {
+  listenEvent(): void {
     this.store
       .select(SenderSelectors.getDataChannelState)
       // .pipe(untilComponentDestroyed(this))
       .subscribe((state) => {
-        if (state == 'open') {
+        if (state === 'open') {
           this.store.dispatch(new SendDataAction());
         }
       });
@@ -96,7 +95,7 @@ export class SenderComponent
               'Your friends were downloading completely! You can close the tab now!'
             )
             .subscribe((res) => {
-              this.router.navigateByUrl('/').then((res) => {
+              this.router.navigateByUrl('/').then((_) => {
                 window.location.reload();
               });
             });
@@ -107,9 +106,8 @@ export class SenderComponent
   /**
    * Start the game
    * @trigger when user click on step 1
-   * @returns
    */
-  initChannel() {
+  initChannel(): void {
     const files = this.store.selectSnapshot<IFilePartSending[]>(
       SenderSelectors.getLocalFiles
     );
@@ -117,14 +115,14 @@ export class SenderComponent
       this.showGuide = false;
       this.browseDisable = true;
       this.commonService.showNotify(
-        "Wait until step2 complete then share 'link' or 'id | key'  to your friends ",
+        'Wait until step2 complete then share \'link\' or \'id | key\'  to your friends ',
         'Initialize Channel',
         3000
       );
-      return this.store.dispatch(new InitializeSignalingChannelAction());
+      this.store.dispatch(new InitializeSignalingChannelAction());
     } else {
       this.stepper.activeItemIndex = -1;
-      return this.commonService
+      this.commonService
         .showDialog('Please select atleast 1 file..')
         .subscribe();
     }
@@ -132,13 +130,13 @@ export class SenderComponent
 
   /**
    * Mapping from browser file to system file
-   * @param files
-   * @returns
+   * @param files list of input file
+   * @returns list of file
    */
-  fileMapping(files: FileList | File[]) {
+  fileMapping(files: FileList | File[]): IFilePartSending[] {
     let mapList: File[] = [];
-    if (files instanceof FileList) mapList = Array.from(files);
-    else mapList = files;
+    if (files instanceof FileList) { mapList = Array.from(files); }
+    else { mapList = files; }
     const filesMap: IFilePartSending[] = mapList.map((file, index) => {
       return {
         fileId: index,
@@ -154,16 +152,19 @@ export class SenderComponent
     return filesMap;
   }
 
-  click(item: HTMLElement) {
-    item.nodeValue = null;
-    item.click();
-  }
-  onClose(index) {
+  /**
+   * On press button close in list of file
+   * @param index: number
+   */
+  onClose(index: number): void {
     this.store.dispatch(new DeleteFilesAction(index));
   }
 
-  //dragDropFilePart
-  dropped(files: NgxFileDropEntry[]) {
+  /**
+   * ON drag and drop a file on the list
+   * @param files : files change
+   */
+  dropped(files: NgxFileDropEntry[]): void {
     this.files = files;
     if (files.length > 0) {
       this.showGuide = true;
@@ -183,11 +184,19 @@ export class SenderComponent
     }
   }
 
-  public fileOver(event) {
+  /**
+   * Debug event
+   * @param event from DOM
+   */
+  public fileOver(event): void {
     console.log(event);
   }
 
-  public fileLeave(event) {
+  /**
+   * Debug event
+   * @param event from DOM
+   */
+  public fileLeave(event): void{
     console.log(event);
   }
 }

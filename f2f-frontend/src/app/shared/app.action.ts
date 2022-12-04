@@ -1,4 +1,4 @@
-import { RxStompState } from "./app.model";
+import { RxStompState } from './app.model';
 
 export class SetScreenAction {
   static readonly type = '[APP] Set screen';

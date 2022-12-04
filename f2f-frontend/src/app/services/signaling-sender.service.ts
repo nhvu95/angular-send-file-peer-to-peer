@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Store } from '@ngxs/store';
-import { BehaviorSubject, ReplaySubject, Subject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import {
   EPeerState,
   IFilePartSending,
@@ -15,7 +15,7 @@ import {
   UpdateFileSendingProgressAction,
   UpdateSenderStatusAction,
 } from '../sender/sender.action';
-import { SharedAppService } from '../shared/shared-app.service';
+import { SharedAppService } from '@shared/shared-app.service';
 import { SignalingService } from './signaling.service';
 import { RxStompBridgeService } from './rx-stomp-bridge.service';
 import { AppSelectors } from '@shared/app.selector';
@@ -38,9 +38,9 @@ export class SignalingSenderService extends SignalingService {
     console.log('SignalingSender init');
   }
 
-  createConnection() {
+  createConnection(): void {
     this.connection = new RTCPeerConnection(this.configuration);
-    //prettier-ignore
+    // prettier-ignore
     this.dataChannel = this.connection.createDataChannel('sendDataChannel');
     this.dataChannel.onopen = this.onDataChannelStateChange.bind(this);
 
@@ -52,15 +52,13 @@ export class SignalingSenderService extends SignalingService {
   }
 
   /** ======================================================================================================================
-   *                                                     Data Channel - Message Part                                                      
-   *  ======================================================================================================================/ 
-
-  /**
+   *                                                     Data Channel - Message Part
+   *  ======================================================================================================================/
    * Send Data through WebRTC data channel
    * @through Web RTC Data channel
-   * @returns
+   * @returns void
    */
-  sendData() {
+  sendData(): void {
     const self = this;
     const file = this.sendingFiles$.getValue();
     const fileData = file.fileData;
@@ -81,7 +79,7 @@ export class SignalingSenderService extends SignalingService {
     );
     fileReader.addEventListener('load', (e) => {
       console.log('FileRead.onload ', e);
-      const data = <ArrayBuffer>e.target.result;
+      const data = e.target.result as ArrayBuffer;
       try {
         self.dataChannel.send(data);
       } catch (e) {
@@ -113,25 +111,33 @@ export class SignalingSenderService extends SignalingService {
    * Close WebRTC Data channel
    * Sen
    */
-  closeDataChannels() {
-    if (this.dataChannel) {
-      this.dataChannel.close();
-      this.store.dispatch(new UpdateDataChannelStateAction('closed'));
-      // Send close connect to receiver
-      this.sendCloseDataChannelMsg();
-      this.dataChannel.removeAllListeners('open');
-      this.dataChannel.removeAllListeners('close');
-      this.dataChannel.removeAllListeners('message');
-      this.dataChannel = null;
-    }
+  closeDataChannels(init = false): void {
+    try {
+      // Whatever it is, forgive me my lord
+      if (this.dataChannel) {
+        this.dataChannel.close();
+        this.store.dispatch(new UpdateDataChannelStateAction('closed'));
+        // Send close connect to receiver
+        if (!init) {
+          this.sendCloseDataChannelMsg();
+        }
+        this.dataChannel.removeAllListeners('open');
+        this.dataChannel.removeAllListeners('close');
+        this.dataChannel.removeAllListeners('message');
+        this.dataChannel = null;
+      }
 
-    this.closeConnection();
-    this.store.dispatch(new UpdateSenderStatusAction(EPeerState.IDLE, null));
+      this.closeConnection();
+      this.store.dispatch(new UpdateSenderStatusAction(EPeerState.IDLE, null));
+    } catch (e) {
+      // In case we have error GC browser will automatically close it anyway
+    }
   }
 
   /**
    * Update sending status
-   * @param data
+   * @param data object include info about pairing target
+   * @param peerId peerId
    */
   updateSendingStatus(peerId: number, data: IPreFlightModel): void {
     this.store.dispatch(
@@ -140,24 +146,24 @@ export class SignalingSenderService extends SignalingService {
   }
 
   /** ======================================================================================================================
-   *                                                    Signaling Channel - Message Part                                                      
-   *  ======================================================================================================================/ 
-
-  /**
+   *                                                    Signaling Channel - Message Part
+   *  ======================================================================================================================/
    * Message handler
    * Behavior when getting a message from the receiver
-   * @param message
-   * @returns
+   * @param message message got
+   * @returns Promise<void>
    */
-  async messageHandler(message: ISignalingMessage) {
-    if (!message || !this.isSenderScreen) return;
+  async messageHandler(message: ISignalingMessage): Promise<void> {
     console.log(
-      `GOT message ${message.content} from ${message.from}`,
-      message.data
+      `GOT message ${message?.content} from ${message?.from}`,
+      message,
+      `SENDER ${this.isSenderScreen}`
     );
+    if (!message || !this.isSenderScreen) { return; }
     switch (message.content) {
       case 'list-files': {
         this.sendListFileMsg(message.from, message.data);
+        this.setConnectingId(message.from);
         break;
       }
       case 'preflight': {
@@ -168,7 +174,7 @@ export class SignalingSenderService extends SignalingService {
       }
       case 'webrtc-answer': {
         await this.connection?.setRemoteDescription(message.data);
-        this.startSharingICECandidate();
+        this.sendStartSharingICEMsg();
         break;
       }
       case 'get-file-completed': {
@@ -189,12 +195,14 @@ export class SignalingSenderService extends SignalingService {
   /**
    * Presend list file to receiver, to let him display the list first
    * @through Signaling Channel (ActiveMQ)
-   * @param askingFile
+   * @param senderId sender id
+   * @param accessKey key to access channel
    */
-  async sendListFileMsg(senderId: number, accessKey: string) {
+  async sendListFileMsg(senderId: number, accessKey: string): Promise<void> {
+    // tslint:disable-next-line:variable-name
     const _accessKey = this.store.selectSnapshot(AppSelectors.getAccessKey);
     if (accessKey === _accessKey) {
-      //prettier-ignore
+      // prettier-ignore
       const files = this.selectedFiles$.getValue();
       const message: ISignalingMessage = {
         from: this.peerId,
@@ -207,13 +215,32 @@ export class SignalingSenderService extends SignalingService {
   }
 
   /**
+   * Send StartSharingICEMsg to receiver, attach the file part information
+   * @through Signaling Channel (ActiveMQ)
+   */
+  async sendStartSharingICEMsg(): Promise<void> {
+    const message: ISignalingMessage = {
+      from: this.peerId,
+      to: this.connectingPeerId,
+      content: 'start-sharing-ice',
+      data: null,
+      info: null,
+    };
+    this.rxStompService.publish(message, this.connectingPeerId);
+
+    setTimeout(() => {
+      this.startSharingICECandidate();
+    }, 1000);
+  }
+
+  /**
    * Send WebRTC-Offer to receiver, attach the file part information
    * @through Signaling Channel (ActiveMQ)
-   * @param askingFile
+   * @param askingFile an object include info about the file receiver need
    */
-  async sendOfferMsg(askingFile: { fileId; partIndex: number }) {
+  async sendOfferMsg(askingFile: { fileId; partIndex: number }): Promise<void> {
     try {
-      //prettier-ignore
+      // prettier-ignore
       const files = this.selectedFiles$.getValue();
       const filePart = files.find(
         (file) =>
@@ -269,7 +296,7 @@ export class SignalingSenderService extends SignalingService {
    * Send close data channel msg to receiver
    * @through Signaling Channel (ActiveMQ)
    */
-  sendCloseDataChannelMsg() {
+  sendCloseDataChannelMsg(): void {
     const message: ISignalingMessage = {
       from: this.peerId,
       to: this.connectingPeerId,

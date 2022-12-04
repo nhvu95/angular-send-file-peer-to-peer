@@ -7,7 +7,7 @@ import { POLYMORPHEUS_CONTEXT } from '@tinkoff/ng-polymorpheus';
   template: `
     <div
       style="
-      display:flex; 
+      display:flex;
       flex-direction: column;
       column-count: 1;
       width: 100%;
@@ -25,7 +25,7 @@ import { POLYMORPHEUS_CONTEXT } from '@tinkoff/ng-polymorpheus';
   styles: [],
 })
 export class YesNoDialogComponent {
-  message: String = '';
+  message = '';
   constructor(
     @Inject(POLYMORPHEUS_CONTEXT)
     private readonly context: TuiNotificationContentContext<boolean>
@@ -33,11 +33,11 @@ export class YesNoDialogComponent {
     this.message = context.data;
   }
 
-  ok() {
+  ok(): void {
     this.context.emitAndCloseHook(true);
   }
 
-  cancel() {
+  cancel(): void {
     this.context.emitAndCloseHook(false);
   }
 }

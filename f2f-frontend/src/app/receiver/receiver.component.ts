@@ -31,7 +31,7 @@ import {
 import { ReceiverSelectors } from './receiver.selectors';
 
 @Component({
-  selector: 'receiver',
+  selector: 'et-receiver',
   templateUrl: 'receiver.component.html',
   styleUrls: ['receiver.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -41,7 +41,7 @@ export class ReceiverComponent
   implements AfterViewInit, OnDestroy
 {
   public files: NgxFileDropEntry[] = [];
-  showGuide: boolean = false;
+  showGuide = false;
 
   @Select(AppSelectors.getChannelId) channelId$: Observable<string>;
   @Select(AppSelectors.getAccessKey) accessKey$: Observable<string>;
@@ -59,7 +59,7 @@ export class ReceiverComponent
     private cdr: ChangeDetectorRef
   ) {
     super();
-    this.store.dispatch(new ReceiverResetStateToDefaultAction);
+    this.store.dispatch(new ReceiverResetStateToDefaultAction());
     this.store.dispatch(new AccessChannelAction(null, null));
 
     this.leechForm = new FormGroup({
@@ -85,6 +85,9 @@ export class ReceiverComponent
     });
   }
 
+  /**
+   * On After view Init
+   */
   ngAfterViewInit(): void {
     this.store.dispatch(new SetScreenAction('receiver'));
 
@@ -111,6 +114,9 @@ export class ReceiverComponent
       });
   }
 
+  /**
+   * On Destroy
+   */
   ngOnDestroy(): void {
     this.store.dispatch(new CloseReceiverDataChannelAction());
     super.ngOnDestroy();
@@ -119,7 +125,7 @@ export class ReceiverComponent
   /**
    * Start getting file (leeching file)
    */
-  startLeech() {
+  startLeech(): void {
     const self = this;
     const channelId: string = this.leechForm.get('channelId').value;
     const accessKey: string = this.leechForm.get('accessKey').value;
@@ -142,14 +148,13 @@ export class ReceiverComponent
     }
   }
 
-  click(item: HTMLElement) {
-    item.nodeValue = null;
-    item.click();
-  }
+  onClose(item): void {}
 
-  onClose(item) {}
-
-  showDonate(content) {
+  /**
+   * Show donate dialog with QR code
+   * @param content HTMLTemplate
+   */
+  showDonate(content): void {
     this.commonService.showDialogWithTemplate(content);
   }
 }

@@ -106,7 +106,7 @@ public class SignalingService {
 		Optional<SignalingChannel> newChannel = this.signalingRepo.findById(channelId);
 		return newChannel.orElse(null);
 	}
-	
+
 	/**
 	 * STEP 3. One of Peers(Browser) register a shared file This file and all it
 	 * parts will be store as a record to the database
@@ -146,33 +146,18 @@ public class SignalingService {
 		List<FilePart> allParts;
 		Map<String, Integer> ownedParts;
 
-		if (fileId == null && channelId != null) {
-			// CASE1: Receiver doesn't know anything about any file available in this
-			// channel
-			// MINI_STEP 1: Find all parts which this peer already have;
-			allParts = fileRepo.getAllFilePartByChannel(channelId);
-			ownedParts = allParts.stream().filter(part -> part.getOwnerId() == peerId)
-					.collect(Collectors.toMap(FilePart::getSID, c -> c.getIndex()));
-		} else {
-			// CASE2: Receiver knows anything about which file should continue take
-			allParts = fileRepo.getAllFilePartByFileId(fileId);
-			ownedParts = allParts.stream().filter(part -> part.getOwnerId() == peerId)
-					.collect(Collectors.toMap(FilePart::getSID, c -> c.getIndex()));
-		}
+		allParts = fileRepo.getAllFilePartByChannel(channelId);
+		ownedParts = allParts.stream().filter(part -> part.getOwnerId().equals(peerId))
+				.collect(Collectors.toMap(FilePart::getSID, c -> c.getIndex()));
 
 		// MINI_STEP 2: Get free peers
 		SignalingChannel channel = signalingRepo.findById(channelId).get();
-		Set<Peer> peers = channel.getActors();
-		Map<Long, Peer> freePeers = peers.stream().filter(peer -> {
-			return peer.getPeerId() != peerId && peer.getSending() == null;
-		}).collect(Collectors.toMap(Peer::getPeerId, c -> c));
-
 		// MINI_STEP 3: Do we have any part is missing ? find it
 		Set<String> missingParts = new HashSet<String>();
 
 		if (ownedParts.size() > 0) {
 			allParts.forEach(filePart -> {
-				if (filePart.getOwnerId() == peerId)
+				if (filePart.getOwnerId().equals(peerId))
 					return;
 
 				Long _fileId = filePart.getFileId();
@@ -194,53 +179,31 @@ public class SignalingService {
 		}
 
 		// MINI_STEP 4: If there is no free peer. ask the source (Channel holder)
-		if (freePeers.size() == 0) {
+		FilePart missing = allParts.stream().filter(part -> {
+			// Get all parts that belong to a sourceOwner - He always has what we need
+			if (!part.getOwnerId().equals(channel.getSourceOwnerId())) {
+				return false;
+			}
+			return true;
+		}).filter(part -> {
+			// Get first part that this peer is missing
+			Long key = part.getFileId();
+			Integer index = part.getIndex();
+			return missingParts.contains(key + "-" + index);
+		}).findFirst().orElse(null);
 
-			FilePart missing = allParts.stream().filter(part -> {
-				// Get all parts that belong to a sourceOwner - He always has what we need
-				if (part.getOwnerId() != channel.getSourceOwnerId())
-					return false;
-				return true;
-			}).filter(part -> {
-				// Get first part that this peer is missing and the source is free
-				Long key = part.getFileId();
-				Integer index = part.getIndex();
-				return missingParts.contains(key + "-" + index);
-			}).findFirst().orElse(null);
-
-			return missing;
-
-		} else {
-			// MINI_STEP 4: If have no free peer. ask the source
-			FilePart missing = allParts.stream().filter(part -> {
-				// Get all parts that belong to a free peer
-				if (part.getOwnerId() != peerId)
-					return false;
-				;
-				Peer peer = freePeers.get(part.getOwnerId());
-				if (peer == null) {
-					return false;
-				}
-				return true;
-			}).filter(part -> {
-				// Get first part that this peer is missing and the source is free
-				Long key = part.getFileId();
-				Integer value = part.getIndex();
-				return missingParts.contains(key + "-" + value);
-			}).findFirst().orElse(null);
-
-			return missing;
-		}
+		return missing;
 	}
 
 	/**
 	 * Get All File in this channel
+	 * 
 	 * @param channelId
 	 * @return
 	 */
 	public List<FilePart> getAllPartOrigin(Long channelId) {
 		List<FilePart> allParts = fileRepo.getAllFilePartOrigin(channelId);
-		return allParts.stream().filter(file -> file.getIndex() == 0).collect(Collectors.toList());	
+		return allParts.stream().filter(file -> file.getIndex().equals(0)).collect(Collectors.toList());
 	}
 
 	/**
