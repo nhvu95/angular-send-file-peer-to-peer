@@ -22,6 +22,7 @@ import { SignalingService } from './signaling.service';
 import streamSaver from 'streamsaver';
 import { UpdateDataChannelStateAction } from '../sender/sender.action';
 import { AppSelectors } from '@shared/app.selector';
+import { SignalingSenderService } from './signaling-sender.service';
 
 @Injectable({
   providedIn: 'any',
@@ -38,6 +39,7 @@ export class SignalingReceiverService extends SignalingService {
     protected readonly httpClient: HttpClient,
     protected store: Store,
     protected commonService: SharedAppService,
+    protected signalingSenderServ: SignalingSenderService,
     protected rxStompService: RxStompBridgeService
   ) {
     super(httpClient, store, commonService, rxStompService);
@@ -146,20 +148,25 @@ export class SignalingReceiverService extends SignalingService {
    * Close Data Channel
    */
   closeDataChannels() {
-    if (this.dataChannel) {
-      this.dataChannel.close();
-      this.store.dispatch(new UpdateDataChannelStateAction('closed'));
-      this.dataChannel.removeAllListeners('open');
-      this.dataChannel.removeAllListeners('close');
-      this.dataChannel.removeAllListeners('message');
-      this.dataChannel = null;
+    try {
+      if (this.dataChannel) {
+        this.dataChannel.close();
+        this.store.dispatch(new UpdateDataChannelStateAction('closed'));
+        this.dataChannel.removeAllListeners('open');
+        this.dataChannel.removeAllListeners('close');
+        this.dataChannel.removeAllListeners('message');
+        this.dataChannel = null;
+      }
+      this.saveStream?.close();
+      this.saveStream = null;
+      this.fileStream = null;
+      this.streamWriter = null;
+  
+      this.closeConnection();
+    } catch (e) {
+            //Whatever it is, forgive me, my lord
     }
-    this.saveStream?.close();
-    this.saveStream = null;
-    this.fileStream = null;
-    this.streamWriter = null;
-
-    this.closeConnection();
+    
   }
 
   /**
@@ -186,17 +193,26 @@ export class SignalingReceiverService extends SignalingService {
    * @returns
    */
   async messageHandler(message: ISignalingMessage) {
-    if (!message || this.isSenderScreen) return;
+    if (!message) return;
     console.log(
-      `GOT message ${message.content} from ${message.from}`,
-      message.content === 'webrtc-offer' ? message.info : message.data
+      `GOT message ${message?.content} from ${message?.from}`,
+      message,
+      `SENDER ${this.isSenderScreen}`
     );
     switch (message.content) {
+      case 'webrtc-answer': {
+        this.signalingSenderServ.messageHandler(message);
+        break;
+      }
       case 'list-files': {
         const listFiles: IFilePartInformation[] = message.data;
         listFiles.forEach((filePart) => {
           this.store.dispatch(new AddNewFileInfoAction(filePart));
         });
+        break;
+      }
+      case 'start-sharing-ice': {
+        this.startSharingICECandidate();
         break;
       }
       case 'webrtc-ice-candidate': {
@@ -252,9 +268,9 @@ export class SignalingReceiverService extends SignalingService {
       };
       this.rxStompService.publish(message, this.connectingPeerId);
 
-      this.startSharingICECandidate();
     } catch (e) {
       // Stupid way, but it's worked
+      console.log(e);
       setTimeout(async () => {
         await self.sendAnswerMsg();
       }, 1000);

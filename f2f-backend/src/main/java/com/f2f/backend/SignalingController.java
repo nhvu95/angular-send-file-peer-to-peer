@@ -42,13 +42,7 @@ public class SignalingController {
 	}
 
 	@GetMapping("/peer")
-	public Long getPeerId(@RequestParam("peerId") Optional<Long> optPeerId) {
-		if (!optPeerId.isEmpty()) {
-			boolean valid = this.signalingServ.validatePeer(optPeerId.get());
-			if (valid) {
-				return optPeerId.get();
-			}
-		}
+	public Long getPeerId() {
 		return this.signalingServ.getPeerId();
 	}
 
@@ -97,7 +91,11 @@ public class SignalingController {
 		Long peerId = this.peerDetails.getPeerId();
 		Long channelId = this.peerDetails.getChannelId();
 		FilePart nextPart = this.signalingServ.getPartForPeer(channelId, peerId, fileId.orElse(null));
-		return new ResponseEntity<>(nextPart, HttpStatus.OK);
+		if ( nextPart != null ) {
+			return new ResponseEntity<>(nextPart, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(nextPart, HttpStatus.NOT_FOUND);
+		}
 	}
 
 	@PutMapping("/channel/{channelId}/file")

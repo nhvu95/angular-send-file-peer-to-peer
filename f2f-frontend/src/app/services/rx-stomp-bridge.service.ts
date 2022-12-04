@@ -18,7 +18,7 @@ export class RxStompBridgeService {
     this.store.select(AppSelectors.getPeerId).subscribe((peerId) => {
       if (peerId) {
         this._rxMessage$ = this.rxStompService
-          .watch(`PEERS.${peerId}`)
+          .watch(`PEERS.B${peerId}`)
           .pipe(share());
       }
     });
@@ -50,9 +50,9 @@ export class RxStompBridgeService {
    * @param connectingPeerId 
    */
   publish(message: ISignalingMessage, connectingPeerId: number) {
-    console.log(`SEND message ${message.content} to ${message.to}`, message.data);
+    console.log(`SEND message ${message.content} to ${message.to}`, message);
     this.rxStompService.publish({
-      destination: `PEERS.${connectingPeerId}`,
+      destination: `PEERS.B${connectingPeerId}`,
       body: JSON.stringify(message),
     });
   }

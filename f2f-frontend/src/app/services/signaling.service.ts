@@ -22,21 +22,17 @@ import { environment } from 'src/environments/environment';
 import { UpdateDataChannelStateAction } from '../sender/sender.action';
 import { RxStompBridgeService } from './rx-stomp-bridge.service';
 import { SharedAppService } from '../shared/shared-app.service';
+import { STUN_SERVER, TURN_SERVER } from './constant';
 
 @Injectable()
 export class SignalingService {
   configuration = {
     iceServers: [
-      {
-        urls: 'turn:turn.anyfirewall.com:443?transport=tcp',
-        username: 'webrtc',
-        credential: 'webrtc',
-      },
-      {
-        urls: 'stun:stun.l.google.com:19302',
-      },
+      ...TURN_SERVER,
+      ...STUN_SERVER,
     ],
   };
+  readonly peerLocalId = 'peerLocalIdV2';
 
   peerId: number;
   connectingPeerId: number;
@@ -49,7 +45,7 @@ export class SignalingService {
   cleanIceCandidates$ = new Subject();
 
   _receivedMessages$ = new BehaviorSubject<ISignalingMessage>(null);
-  receivedMessages$ = this._receivedMessages$.asObservable().pipe(share());
+  receivedMessages$ = this._receivedMessages$.asObservable();
 
   subscription: Subscription;
   // _dataChannelState = new BehaviorSubject<String>(null);
@@ -76,9 +72,10 @@ export class SignalingService {
     this.store.select(AppSelectors.getScreen).subscribe((screen) => {
       this.isSenderScreen = screen == 'sender';
     });
-    this.peerId = Number(localStorage.getItem('peerLocalId'));
-    this.getLocalPeerId(this.peerId).subscribe((peerId) => {
-      localStorage.setItem('peerLocalId', String(peerId));
+    this.getLocalPeerId().subscribe((peerId) => {
+      // Create new PeerId everytime
+      this.peerId = peerId;
+      localStorage.setItem(this.peerLocalId, String(this.peerId));
       this.store.dispatch(new SetPeerIdAction(peerId));
       this.setLocalIdAndStartListenMessage(peerId);
     });
@@ -219,12 +216,11 @@ export class SignalingService {
    * STEP 1: Get local peer Id
    * @returns peerId
    */
-  getLocalPeerId(peerId: number = null): Observable<number> {
+  getLocalPeerId(): Observable<number> {
     return this.httpClient.get<number>(
       [environment.API_HOST, environment.EV_PATH, environment.PEER_PATH].join(
         '/'
-      ),
-      { params: { peerId } }
+      )
     );
   }
 
@@ -266,7 +262,7 @@ export class SignalingService {
         environment.EV_PATH,
         environment.CHANNEL_PATH,
         channelId,
-        "owner"
+        'owner',
       ].join('/')
     );
   }
@@ -322,7 +318,7 @@ export class SignalingService {
         channelId,
         environment.FILE_PATH,
       ].join('/'),
-      { fileId: Number(fileId), index: partIndex, totalPart },
+      { fileId: Number(fileId), index: partIndex, totalPart }
     );
   }
 

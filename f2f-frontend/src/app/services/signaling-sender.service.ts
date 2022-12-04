@@ -113,20 +113,27 @@ export class SignalingSenderService extends SignalingService {
    * Close WebRTC Data channel
    * Sen
    */
-  closeDataChannels() {
-    if (this.dataChannel) {
-      this.dataChannel.close();
-      this.store.dispatch(new UpdateDataChannelStateAction('closed'));
-      // Send close connect to receiver
-      this.sendCloseDataChannelMsg();
-      this.dataChannel.removeAllListeners('open');
-      this.dataChannel.removeAllListeners('close');
-      this.dataChannel.removeAllListeners('message');
-      this.dataChannel = null;
-    }
+  closeDataChannels(init = false) {
+    try {
+      // Whatever it is, forgive me my lord
+      if (this.dataChannel) {
+        this.dataChannel.close();
+        this.store.dispatch(new UpdateDataChannelStateAction('closed'));
+        // Send close connect to receiver
+        if (!init) {
+          this.sendCloseDataChannelMsg();
+        }
+        this.dataChannel.removeAllListeners('open');
+        this.dataChannel.removeAllListeners('close');
+        this.dataChannel.removeAllListeners('message');
+        this.dataChannel = null;
+      }
 
-    this.closeConnection();
-    this.store.dispatch(new UpdateSenderStatusAction(EPeerState.IDLE, null));
+      this.closeConnection();
+      this.store.dispatch(new UpdateSenderStatusAction(EPeerState.IDLE, null));
+    } catch (e) {
+      //Whatever it is, forgive me, my lord
+    }
   }
 
   /**
@@ -150,14 +157,16 @@ export class SignalingSenderService extends SignalingService {
    * @returns
    */
   async messageHandler(message: ISignalingMessage) {
-    if (!message || !this.isSenderScreen) return;
     console.log(
-      `GOT message ${message.content} from ${message.from}`,
-      message.data
+      `GOT message ${message?.content} from ${message?.from}`,
+      message,
+      `SENDER ${this.isSenderScreen}`
     );
+    if (!message || !this.isSenderScreen) return;
     switch (message.content) {
       case 'list-files': {
         this.sendListFileMsg(message.from, message.data);
+        this.setConnectingId(message.from);
         break;
       }
       case 'preflight': {
@@ -168,7 +177,7 @@ export class SignalingSenderService extends SignalingService {
       }
       case 'webrtc-answer': {
         await this.connection?.setRemoteDescription(message.data);
-        this.startSharingICECandidate();
+        this.sendStartSharingICEMsg();
         break;
       }
       case 'get-file-completed': {
@@ -204,6 +213,26 @@ export class SignalingSenderService extends SignalingService {
       };
       this.rxStompService.publish(message, senderId);
     }
+  }
+
+  /**
+   * Send StartSharingICEMsg to receiver, attach the file part information
+   * @through Signaling Channel (ActiveMQ)
+   * @param askingFile
+   */
+  async sendStartSharingICEMsg() {
+    const message: ISignalingMessage = {
+      from: this.peerId,
+      to: this.connectingPeerId,
+      content: 'start-sharing-ice',
+      data: null,
+      info: null,
+    };
+    this.rxStompService.publish(message, this.connectingPeerId);
+
+    setTimeout(() => {
+      this.startSharingICECandidate();
+    }, 1000);
   }
 
   /**

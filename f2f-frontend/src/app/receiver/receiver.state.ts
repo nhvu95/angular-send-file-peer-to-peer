@@ -187,7 +187,6 @@ export class ReceiverState {
         }
       },
       (err: HttpErrorResponse) => {
-        console.log(err);
         this.store.dispatch(new SetCurrentStepAction(3));
       }
     );
@@ -271,7 +270,10 @@ export class ReceiverState {
         file.totalPart
       )
       .subscribe((res) => {
-        ctx.dispatch(new TryToGettingFile());
+        const file = state.localFiles.find(file => file.currentSize != file.fileSize);
+        if (file) {
+          ctx.dispatch(new TryToGettingFile());
+        }
       });
   }
 

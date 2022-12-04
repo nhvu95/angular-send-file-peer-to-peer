@@ -56,6 +56,7 @@ export type Isingal =
   | 'webrtc-offer'
   | 'webrtc-answer'
   | 'webrtc-ice-candidate'
+  | 'start-sharing-ice'
   | 'webrtc-close-channel'
   | 'get-file-completed'
   | 'get-file-failed';
