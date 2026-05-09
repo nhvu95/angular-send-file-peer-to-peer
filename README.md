@@ -15,8 +15,6 @@ Demo: https://f2f.nhvu95.com
 
 :european_castle: This is overall structure, the more detailed README.MD files are inside the subfolder. You can contact me if you need any help, I am really glad.
 
-:email: email: nhvu.95@gmail.com  
-:earth_asia: website: https://nhvu95.com/
 
 ![Image](https://i.imgur.com/fFc0AdH.png)
 
